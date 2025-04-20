@@ -1,0 +1,57 @@
+version: '3.9'
+
+services:
+  oracle-db:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-db
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    environment:
+      - ORACLE_PWD=Oracle123
+    volumes:
+      - ./ords_config:/etc/ords/config
+    networks:
+      apex_prod_net:
+        ipv4_address: 172.41.1.10
+
+  tomcat:
+    build:
+      context: ./tomcat
+      args:
+        ORDS_VERSION: 23.4.0
+        ORDS_HOME: /opt/ords
+        ORDS_CONFIG: /etc/ords/config
+        DB_HOST: oracle-db
+        DB_PORT: 1521
+        DB_SERVICE: FREEPDB1
+        SYS_PASSWORD: Oracle123
+        APEX_USER: APEX_PUBLIC_USER
+    container_name: tomcat-ords
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./ords_config:/etc/ords/config
+      - ./appfiles:/usr/local/tomcat/webapps/appfiles
+    depends_on:
+      - oracle-db
+    environment:
+      - TZ=America/Asuncion
+    networks:
+      apex_prod_net:
+        ipv4_address: 172.41.1.11
+
+volumes:
+  oracle_data:
+
+networks:
+  apex_prod_net:
+    name: apex_prod_net
+    driver: bridge
+    attachable: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.41.0.0/16
+          ip_range: 172.41.1.0/24
+          gateway: 172.41.1.254
