@@ -140,3 +140,71 @@ ALTER SESSION SET CONTAINER = FREEPDB1;
 @load_es.sql
 @rt_es.sql
 
+# Solicitud de entorno personalizado
+# Datos instancia desarrollo
+# Entorno solicitado
+Oracle: 19c
+tomcat: 9
+Apex: 24.1
+
+# En este ambiente se separa la db de app
+DB = container-registry.oracle.com/database/free:latest
+Tomcat = tomcat:9.0.82-jdk17-temurin
+- Apache Tomcat/9.0.82
+- SQL*Plus
+- Ubuntu 22.04.3 LTS
+- ords-25.1.0.100.1652
+    curl -L -o ords-25.1.0.100.1652.zip https://download.oracle.com/otn_software/java/ords/ords-25.1.0.100.1652.zip
+
+# Instalacion ORDS
+# Descargamos el ORDS y descomprimimos
+curl -L -o ords-25.1.0.100.1652.zip https://download.oracle.com/otn_software/java/ords/ords-25.1.0.100.1652.zip
+mv ords/ords.war /usr/local/tomcat/webapps/
+
+mkdir -p /etc/ords/config
+
+ords --config /etc/ords/config config
+
+ords install \
+  --admin-user sys \
+  --db-hostname oracle-db \
+  --db-port 1521 \
+  --db-servicename FREEPDB1 \
+  --gateway-mode proxied \
+  --gateway-user APEX_PUBLIC_USER \
+  --feature-sdw true \
+  --feature-db-api true \
+  --feature-rest-enabled-sql true \
+  --password-stdin
+
+# Despues de ejecutar esto nos pedira la contraseña de la db
+Contraseña= Oracle123
+
+# Instalacion Apex
+curl -L -o apex_24.1.zip https://download.oracle.com/otn_software/apex/apex_24.1.zip
+
+# Instalacion SQLPlus
+# en este caso vamos a trabajar en el directorio opt
+apt update && apt install -y libaio1 unzip wget
+
+# Descargar los paquetes necesarios (Basic + SQL*Plus + Tools)
+mkdir -p /opt/oracle
+cd /opt/oracle
+wget https://download.oracle.com/otn_software/linux/instantclient/2370000/instantclient-basic-linux.x64-23.7.0.25.01.zip
+wget https://download.oracle.com/otn_software/linux/instantclient/2370000/instantclient-sqlplus-linux.x64-23.7.0.25.01.zip
+wget https://download.oracle.com/otn_software/linux/instantclient/2370000/instantclient-sdk-linux.x64-23.7.0.25.01.zip
+
+unzip instantclient-basic-linux.x64-23.7.0.25.01.zip
+unzip instantclient-sqlplus-linux.x64-23.7.0.25.01.zip
+
+cd instantclient_23_7
+
+echo /opt/oracle/instantclient_23_7 > /etc/ld.so.conf.d/oracle-instantclient.conf
+ldconfig
+export PATH=$PATH:/opt/oracle/instantclient_23_7
+
+echo 'export PATH=$PATH:/opt/oracle/instantclient_23_7' >> ~/.bashrc
+
+sqlplus -v
+
+sqlplus sys/Oracle123@oracle-db:1521/FREEPDB1 as sysdba
