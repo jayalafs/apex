@@ -25,7 +25,7 @@ RUN mkdir -p ${ORDS_HOME} ${ORDS_CONFIG}
 
 # Copiar archivos
 #COPY ords.war ${ORDS_HOME}/ords.war
-COPY entrypoint.sh /entrypoint.sh
+#COPY entrypoint.sh /entrypoint.sh
 
 # Permisos
 RUN chmod +x /entrypoint.sh

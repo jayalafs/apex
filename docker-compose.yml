@@ -10,7 +10,7 @@ services:
     environment:
       - ORACLE_PWD=Oracle123
     volumes:
-      - ./ords_config:/etc/ords/config
+      - oracle_data:/opt/oracle/oradata    # Persistencia de DB
     networks:
       apex_prod_net:
         ipv4_address: 172.41.1.10
@@ -31,8 +31,9 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./ords_config:/etc/ords/config
-      - ./appfiles:/usr/local/tomcat/webapps/appfiles
+      - ./ords_config:/etc/ords/config      # Persistencia de configuración ORDS
+      - ./appfiles:/usr/local/tomcat/webapps/appfiles  # Recursos web externos
+      - tomcat_data:/usr/local/tomcat/logs  # Persistencia de logs (opcional)
     depends_on:
       - oracle-db
     environment:
@@ -43,6 +44,7 @@ services:
 
 volumes:
   oracle_data:
+  tomcat_data:
 
 networks:
   apex_prod_net:
