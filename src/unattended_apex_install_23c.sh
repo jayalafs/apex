@@ -4,17 +4,8 @@ set -e
 
 start_time=$(date +%s)
 
-# Variables
-APEX_ZIP="apex_24.1.zip"
-APEX_URL="https://download.oracle.com/otn_software/apex/${APEX_ZIP}"
-APEX_PWD="Oracle123"
-ORDS_ZIP="ords-25.1.0.100.1652.zip"
-ORDS_URL="https://download.oracle.com/otn_software/java/ords/${ORDS_ZIP}"
-INSTANTCLIENT_VERSION="23_7"
-SYSUSER="sys/${APEX_PWD}@oracle-db:1521/FREEPDB1 as sysdba"
-
 # Instalar dependencias
-apt update && apt install -y unzip curl libaio1
+apt update && apt install -y unzip curl libaio1 wget
 
 # Crear estructura de carpetas
 mkdir -p /opt/oracle && cd /opt/oracle
@@ -22,95 +13,161 @@ mkdir -p /opt/oracle && cd /opt/oracle
 # =====================
 # Instalar SQL*Plus
 # =====================
+mkdir -p /opt/oracle
+cd /opt/oracle || exit 1
 
-echo ">> Instalando Oracle Instant Client + SQL*Plus"
+# Descargar los paquetes necesarios
+wget https://download.oracle.com/otn_software/linux/instantclient/2370000/instantclient-basic-linux.x64-23.7.0.25.01.zip || exit 1
+wget https://download.oracle.com/otn_software/linux/instantclient/2370000/instantclient-sqlplus-linux.x64-23.7.0.25.01.zip || exit 1
 
-curl -O https://download.oracle.com/otn_software/linux/instantclient/instantclient-basiclite-linux.x64-23.7.0.0.0dbru.zip
-curl -O https://download.oracle.com/otn_software/linux/instantclient/instantclient-sqlplus-linux.x64-23.7.0.0.0dbru.zip
+# Descomprimir los paquetes
+unzip -o instantclient-basic-linux.x64-23.7.0.25.01.zip || exit 1
+unzip -o instantclient-sqlplus-linux.x64-23.7.0.25.01.zip || exit 1
 
-unzip -q instantclient-basiclite-*.zip
-unzip -q instantclient-sqlplus-*.zip
-rm -f instantclient-*.zip
-
-cd instantclient_23_7
-
-echo "/opt/oracle/instantclient_${INSTANTCLIENT_VERSION}" > /etc/ld.so.conf.d/oracle-instantclient.conf
+# Configurar librerías compartidas
+echo "/opt/oracle/instantclient_23_7" > /etc/ld.so.conf.d/oracle-instantclient.conf
 ldconfig
-export PATH=$PATH:/opt/oracle/instantclient_${INSTANTCLIENT_VERSION}
 
-cd /opt/oracle
+# Agregar al PATH actual y permanente
+echo 'export PATH=$PATH:/opt/oracle/instantclient_23_7' > /etc/profile.d/sqlplus.sh
+chmod +x /etc/profile.d/sqlplus.sh
+export PATH=$PATH:/opt/oracle/instantclient_23_7
+
+# Crear symlink para que funcione como comando global
+ln -sf /opt/oracle/instantclient_23_7/sqlplus /usr/local/bin/sqlplus
+
+# Confirmar instalación
+echo "Probando sqlplus:"
+sqlplus -v
 
 # =====================
 # Descargar e instalar APEX
 # =====================
 
-echo ">> Descargando APEX..."
-curl -o ${APEX_ZIP} ${APEX_URL}
-unzip -q ${APEX_ZIP} && rm -f ${APEX_ZIP}
-cd apex
+echo ">> Descargando APEX 24.1..."
+curl -L -o apex_24.1.zip https://download.oracle.com/otn_software/apex/apex_24.1.zip || { echo "Error descargando APEX"; exit 1; }
 
-# Verificar sqlplus
-if ! command -v sqlplus &> /dev/null; then
-    echo "❌ sqlplus no está disponible. Abortando."
-    exit 1
-fi
+echo ">> Descomprimiendo..."
+mkdir -p /opt/oracle/apex
+unzip -o apex_24.1.zip -d /opt/oracle/apex || { echo "Error descomprimiendo APEX"; exit 1; }
+rm -f apex_24.1.zip
+cd /opt/oracle/apex/apex || exit 1
 
+# =====================
 # Instalar APEX
-echo ">> Instalando APEX..."
-sqlplus "$SYSUSER" <<EOF
+# =====================
+
+echo ">> Instalando APEX en la base de datos..."
+/opt/oracle/instantclient_23_7/sqlplus "sys/Oracle123@oracle-db:1521/FREEPDB1 as sysdba" <<EOF
 @apexins.sql SYSAUX SYSAUX TEMP /i/
 EXIT;
 EOF
 
-# Desbloquear usuario APEX_PUBLIC_USER
-sqlplus "$SYSUSER" <<EOF
-ALTER USER APEX_PUBLIC_USER IDENTIFIED BY ${APEX_PWD} ACCOUNT UNLOCK;
+# =====================
+# Desbloquear APEX_PUBLIC_USER
+# =====================
+
+echo ">> Desbloqueando APEX_PUBLIC_USER..."
+/opt/oracle/instantclient_23_7/sqlplus "sys/Oracle123@oracle-db:1521/FREEPDB1 as sysdba" <<EOF
+ALTER USER APEX_PUBLIC_USER IDENTIFIED BY Oracle123 ACCOUNT UNLOCK;
 EXIT;
 EOF
 
-# Crear usuario ADMIN
-sqlplus "$SYSUSER" <<EOF
+# =====================
+# Crear usuario ADMIN de APEX
+# =====================
+
+echo ">> Creando usuario ADMIN (si no existe)..."
+/opt/oracle/instantclient_23_7/sqlplus "sys/Oracle123@oracle-db:1521/FREEPDB1 as sysdba" <<EOF
+SET SERVEROUTPUT ON
+DECLARE
+  v_exists NUMBER;
 BEGIN
-    APEX_UTIL.set_security_group_id( 10 );
+  APEX_UTIL.set_security_group_id(10);
+
+  SELECT COUNT(*) INTO v_exists
+  FROM APEX_240100.WWV_FLOW_FND_USER
+  WHERE user_name = 'ADMIN';
+
+  IF v_exists = 0 THEN
     APEX_UTIL.create_user(
-        p_user_name       => 'ADMIN',
-        p_email_address   => 'admin@example.com',
-        p_web_password    => 'OrclAPEX1999!',
-        p_developer_privs => 'ADMIN');
+      p_user_name       => 'ADMIN',
+      p_email_address   => 'jayala@solvet-it.com.py',
+      p_web_password    => 'OrclAPEX1999!',
+      p_developer_privs => 'ADMIN');
     COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Usuario ADMIN creado correctamente.');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('Usuario ADMIN ya existe. No se creó nuevamente.');
+  END IF;
 END;
 /
 EXIT;
 EOF
 
-# Copiar imágenes a Tomcat
-if [ -d "/usr/local/tomcat/webapps" ]; then
-  mkdir -p /usr/local/tomcat/webapps/i
-  cp -r /opt/oracle/apex/images/* /usr/local/tomcat/webapps/i/
-  echo ">> Imágenes de APEX copiadas a /usr/local/tomcat/webapps/i/"
-fi
+# =====================
+# Desplegar ORDS en Tomcat
+# =====================
+
+echo ">> Copiando ords.war a Tomcat..."
+cp /opt/oracle/ords/ords.war /usr/local/tomcat/webapps/ || {
+  echo "Error: no se pudo copiar ords.war a Tomcat"; exit 1;
+}
+
+echo ">> Reiniciando Tomcat..."
+# Asegurarse de detener y volver a iniciar Tomcat
+# Si estás usando supervisord o un script de arranque, adaptá este paso
+
+# Opción 1: usando catalina directamente
+/usr/local/tomcat/bin/catalina.sh stop
+sleep 5
+/usr/local/tomcat/bin/catalina.sh start
+
+# Opción 2: si tu contenedor se gestiona con supervisord
+# supervisorctl restart tomcat
+
+echo "✅ ORDS desplegado en Tomcat. Esperá unos segundos y accedé a:"
+echo "👉 http://<IP_DEL_SERVIDOR>:8080/ords/"
+
 
 # =====================
 # Descargar e instalar ORDS 25.1.0
 # =====================
 
-cd /opt/oracle
+cd /opt/oracle || exit 1
 
-echo ">> Descargando ORDS..."
-curl -o ${ORDS_ZIP} ${ORDS_URL}
-unzip -q ${ORDS_ZIP} && rm -f ${ORDS_ZIP}
+echo ">> Descargando ORDS 25.1.0..."
+curl -L -o ords-25.1.0.100.1652.zip https://download.oracle.com/otn_software/java/ords/ords-25.1.0.100.1652.zip || {
+  echo "Error descargando ORDS"; exit 1;
+}
 
-ORDS_HOME="/opt/oracle/ords"
-ORDS_CONFIG="/etc/ords/config"
+echo ">> Descomprimiendo ORDS en carpeta temporal..."
+mkdir -p /opt/oracle/tmp_ords
+unzip -q ords-25.1.0.100.1652.zip -d /opt/oracle/tmp_ords && rm -f ords-25.1.0.100.1652.zip
 
-mkdir -p ${ORDS_HOME} ${ORDS_CONFIG}
-cp ords.war ${ORDS_HOME}/ords.war
+echo ">> Preparando carpetas de instalación..."
+mkdir -p /opt/oracle/ords /etc/ords/config
 
-# Configurar ORDS
-${ORDS_HOME}/ords.war configdir ${ORDS_CONFIG}
+echo ">> Copiando WAR a /opt/oracle/ords..."
+cp /opt/oracle/tmp_ords/ords.war /opt/oracle/ords/ords.war
+chmod +x /opt/oracle/ords/ords.war
 
+echo ">> Limpiando archivos temporales..."
+rm -rf /opt/oracle/tmp_ords
+
+# Limpiar temporales
+rm -rf /opt/oracle/tmp_ords
+# =====================
 # Instalar ORDS
-java -jar ${ORDS_HOME}/ords.war install \
+# =====================
+
+echo ">> Instalando ORDS..."
+# Guardar contraseña en un archivo temporal
+echo "Oracle123" > /tmp/ords_pass.txt
+echo "Oracle123" >> /tmp/ords_pass.txt
+
+# Ejecutar instalación con stdin redirigido
+java -jar /opt/oracle/ords/ords.war install \
   --admin-user sys \
   --db-hostname oracle-db \
   --db-port 1521 \
@@ -120,13 +177,12 @@ java -jar ${ORDS_HOME}/ords.war install \
   --feature-sdw true \
   --feature-db-api true \
   --feature-rest-enabled-sql true \
-  --password-stdin <<EOF
-${APEX_PWD}
-${APEX_PWD}
-EOF
+  --password-stdin < /tmp/ords_pass.txt
 
-end_time=$(date +%s)
-elapsed_time=$((end_time - start_time))
-echo "✅ Instalación completa en $((elapsed_time / 60)) min $((elapsed_time % 60)) seg."
+rm -f /tmp/ords_pass.txt
 
-exit 0
+# =====================
+# Mensaje de confirmación
+# =====================
+
+echo "✅ ORDS instalado correctamente en /opt/oracle/ords"
