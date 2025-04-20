@@ -28,7 +28,7 @@ RUN mkdir -p ${ORDS_HOME} ${ORDS_CONFIG}
 #COPY entrypoint.sh /entrypoint.sh
 
 # Permisos
-RUN chmod +x /entrypoint.sh
+#RUN chmod +x /entrypoint.sh
 
 EXPOSE 8080
 
