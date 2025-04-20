@@ -1,16 +1,16 @@
 FROM tomcat:9.0.82-jdk17-temurin
 
-# Definir variables como ARG (para build-time)
+# Build-time args
 ARG ORDS_VERSION
-ARG ORDS_HOME
-ARG ORDS_CONFIG
+ARG ORDS_HOME=/opt/ords
+ARG ORDS_CONFIG=/etc/ords/config
 ARG DB_HOST
 ARG DB_PORT
 ARG DB_SERVICE
 ARG SYS_PASSWORD
 ARG APEX_USER
 
-# Exportar ARG como ENV si querés que estén disponibles en tiempo de ejecución
+# Set env vars
 ENV ORDS_VERSION=${ORDS_VERSION}
 ENV ORDS_HOME=${ORDS_HOME}
 ENV ORDS_CONFIG=${ORDS_CONFIG}
@@ -23,13 +23,10 @@ ENV APEX_USER=${APEX_USER}
 # Crear carpetas necesarias
 RUN mkdir -p ${ORDS_HOME} ${ORDS_CONFIG}
 
-# Copiar archivos
-#COPY ords.war ${ORDS_HOME}/ords.war
-#COPY entrypoint.sh /entrypoint.sh
-
-# Permisos
-#RUN chmod +x /entrypoint.sh
-
+# Exponer el puerto de Tomcat
 EXPOSE 8080
 
-ENTRYPOINT ["/entrypoint.sh"]
+# Tomcat inicia por defecto con esto
+CMD ["catalina.sh", "run"]
+
+#ENTRYPOINT ["/entrypoint.sh"]
