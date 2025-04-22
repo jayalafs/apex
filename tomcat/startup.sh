@@ -1,20 +1,26 @@
 #!/bin/bash
-
 set -e
 
 echo "[INFO] Esperando a que Oracle DB esté disponible..."
 
-until echo "SELECT 1 FROM DUAL;" | sqlplus -s sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba > /dev/null 2>&1
+# Espera robusta a que la base de datos esté completamente disponible
+until sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" <<EOF > /dev/null 2>&1
+SET PAGESIZE 1
+SELECT 'READY' FROM v\$instance WHERE status='OPEN';
+EXIT;
+EOF
 do
-  echo "[WARN] Oracle no responde aún, reintentando en 5s..."
+  echo "[WARN] Oracle aún no está completamente operativa. Reintentando en 5s..."
   sleep 5
 done
 
-echo "[INFO] Oracle DB está disponible. Verificando que el listener esté activo..."
+echo "[INFO] Oracle DB está disponible y abierta."
 
-until nc -z ${DB_HOST} ${DB_PORT}
+# Verificar que el listener esté operativo
+echo "[INFO] Verificando listener con lsnrctl status..."
+until echo "lsnrctl status" | sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" > /dev/null 2>&1
 do
-  echo "[WARN] Listener aún no disponible en ${DB_HOST}:${DB_PORT}, esperando..."
+  echo "[WARN] Listener aún no responde, reintentando en 5s..."
   sleep 5
 done
 
@@ -26,7 +32,7 @@ echo "[INFO] Listener activo. Iniciando instalación de APEX y ORDS..."
 if [ -d /opt/oracle/apex ]; then
   echo "[INFO] Instalando APEX..."
   cd /opt/oracle/apex
-  sqlplus -s sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba <<EOF
+  sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" <<EOF
 @apexins.sql SYSAUX SYSAUX TEMP /i/
 EXIT;
 EOF
@@ -38,7 +44,7 @@ fi
 # =====================
 # Desbloquear APEX_PUBLIC_USER
 # =====================
-sqlplus -s sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba <<EOF
+sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" <<EOF
 ALTER USER APEX_PUBLIC_USER IDENTIFIED BY ${ORACLE_PWD} ACCOUNT UNLOCK;
 EXIT;
 EOF
@@ -46,7 +52,7 @@ EOF
 # =====================
 # Crear usuario ADMIN de APEX
 # =====================
-sqlplus -s sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba <<EOF
+sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" <<EOF
 BEGIN
   APEX_UTIL.set_security_group_id(10);
   APEX_UTIL.create_user(
