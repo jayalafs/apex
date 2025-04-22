@@ -59,8 +59,8 @@ RUN curl -L -o ords.zip https://download.oracle.com/otn_software/java/ords/ords-
     unzip -q ords.zip -d /opt/oracle/ords_tmp && \
     mkdir -p /opt/oracle/ords /etc/ords/config && \
     cp /opt/oracle/ords_tmp/ords.war /opt/oracle/ords/ords.war && \
-    chmod +x /opt/oracle/ords/ords.war && \
-    cp /opt/oracle/ords_tmp/ords.war /usr/local/tomcat/webapps/ords.war && \
+    cp /opt/oracle/ords_tmp/bin/ords /usr/local/bin/ords && \
+    chmod +x /usr/local/bin/ords && \
     rm -rf /opt/oracle/ords_tmp ords.zip
 
 # =====================

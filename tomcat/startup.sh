@@ -71,22 +71,29 @@ EOF
 # Instalar ORDS
 # =====================
 if [ -f /opt/oracle/ords/ords.war ]; then
-  echo "[INFO] Ejecutando instalación de ORDS..."
-  cd /opt/oracle/ords
-  java -jar ords.war install \
+  echo "[INFO] Ejecutando instalación de ORDS..."]
+
+  # Asegurarse que el binario `ords` esté en el PATH
+  export PATH=$PATH:/opt/oracle/ords
+
+  ords install \
+    --config /etc/ords/config \
     --admin-user sys \
     --db-hostname ${DB_HOST} \
     --db-port ${DB_PORT} \
     --db-servicename ${DB_SERVICE} \
     --gateway-mode proxied \
     --gateway-user APEX_PUBLIC_USER \
-    --feature-sdw true \
-    --feature-db-api true \
+    --gateway-password "${ORACLE_PWD}" \
+    --feature-sql-developer-web true \
     --feature-rest-enabled-sql true \
-    --password-stdin <<EOF
-${ORACLE_PWD}
-${ORACLE_PWD}
-EOF
+    --feature-db-api true \
+    --schema-tablespace SYSAUX \
+    --temp-tablespace TEMP \
+    --proxy-user \
+    --log-folder /opt/oracle/ords/logs \
+    --password "${ORACLE_PWD}" \
+    --pre-mapped
 else
   echo "[ERROR] ORDS no encontrado en /opt/oracle/ords/ords.war"
   exit 1
