@@ -4,7 +4,13 @@ set -e
 
 echo "[INFO] Esperando a que Oracle DB esté disponible..."
 
-until echo "SELECT 1 FROM DUAL;" | sqlplus -s sys/${ORACLE_PWD}@${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba | grep -q 1; do
+until sqlplus -s sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba <<EOF
+WHENEVER SQLERROR EXIT 1;
+SELECT 1 FROM DUAL;
+EXIT;
+EOF
+do
+  echo "[WARN] Oracle no responde aún, reintentando en 5s..."
   sleep 5
 done
 
@@ -12,24 +18,24 @@ echo "[INFO] Oracle DB está disponible, iniciando instalación de APEX y ORDS..
 
 # Instalar APEX
 cd /opt/oracle/apex
-sqlplus sys/${ORACLE_PWD}@${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba <<EOF
+sqlplus -s sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba <<EOF
 @apexins.sql SYSAUX SYSAUX TEMP /i/
 EXIT;
 EOF
 
 # Desbloquear APEX_PUBLIC_USER
-sqlplus sys/${ORACLE_PWD}@${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba <<EOF
+sqlplus -s sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba <<EOF
 ALTER USER APEX_PUBLIC_USER IDENTIFIED BY ${ORACLE_PWD} ACCOUNT UNLOCK;
 EXIT;
 EOF
 
 # Crear usuario ADMIN
-sqlplus sys/${ORACLE_PWD}@${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba <<EOF
+sqlplus -s sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba <<EOF
 BEGIN
   APEX_UTIL.set_security_group_id(10);
   APEX_UTIL.create_user(
     p_user_name => '${APEX_ADMIN}',
-    p_email_address => 'admin@example.com',
+    p_email_address => '${APEX_ADMIN_EMAIL}',
     p_web_password => '${APEX_ADMIN_PWD}',
     p_developer_privs => 'ADMIN'
   );
