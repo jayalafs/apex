@@ -60,7 +60,7 @@ RUN curl -L -o ords.zip https://download.oracle.com/otn_software/java/ords/ords-
 # =====================
 # Copiar script de arranque (instalación APEX + ORDS + arranque de Tomcat)
 # =====================
-COPY ../src/startup.sh /opt/oracle/startup.sh
+COPY startup.sh /opt/oracle/startup.sh
 RUN chmod +x /opt/oracle/startup.sh
 
 # =====================
