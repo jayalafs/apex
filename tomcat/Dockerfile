@@ -62,8 +62,8 @@ RUN curl -L -o ords.zip https://download.oracle.com/otn_software/java/ords/ords-
 # =====================
 # Descargar APEX
 # =====================
-RUN curl -o apex_${APEX_VERSION}.zip https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip && \
-    unzip -q apex_${APEX_VERSION}.zip -d /opt/oracle && \
+RUN curl -L -o apex_${APEX_VERSION}.zip https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip && \
+    unzip -oq apex_${APEX_VERSION}.zip -d /opt/oracle && \
     rm -f apex_${APEX_VERSION}.zip
 
 # =====================

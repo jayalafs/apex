@@ -28,6 +28,7 @@ services:
         APEX_ADMIN_EMAIL: ${APEX_ADMIN_EMAIL}
         APEX_ADMIN_PWD: ${APEX_ADMIN_PWD}
         ORDS_VERSION: ${ORDS_VERSION}
+        APEX_VERSION: ${APEX_VERSION}
         TZ: ${TZ}
     container_name: tomcat-ords
     ports:
