@@ -13,6 +13,7 @@ ARG APEX_ADMIN
 ARG APEX_ADMIN_EMAIL
 ARG APEX_ADMIN_PWD
 ARG ORDS_VERSION
+ARG APEX_VERSION
 ARG TZ
 
 ENV ORACLE_PWD=$ORACLE_PWD \
@@ -23,6 +24,7 @@ ENV ORACLE_PWD=$ORACLE_PWD \
     APEX_ADMIN_EMAIL=$APEX_ADMIN_EMAIL \
     APEX_ADMIN_PWD=$APEX_ADMIN_PWD \
     ORDS_VERSION=$ORDS_VERSION \
+    APEX_VERSION=$APEX_VERSION \
     TZ=$TZ
 
 WORKDIR /opt/oracle
@@ -56,6 +58,13 @@ RUN curl -L -o ords.zip https://download.oracle.com/otn_software/java/ords/ords-
     cp /opt/oracle/ords_tmp/ords.war /opt/oracle/ords/ords.war && \
     chmod +x /opt/oracle/ords/ords.war && \
     rm -rf /opt/oracle/ords_tmp ords.zip
+
+# =====================
+# Descargar APEX
+# =====================
+RUN curl -o apex_${APEX_VERSION}.zip https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip && \
+    unzip -q apex_${APEX_VERSION}.zip -d /opt/oracle && \
+    rm -f apex_${APEX_VERSION}.zip
 
 # =====================
 # Copiar script de arranque (instalación APEX + ORDS + arranque de Tomcat)
