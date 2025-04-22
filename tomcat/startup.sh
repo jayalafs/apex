@@ -80,21 +80,21 @@ fi
 # =========================
 # Preparar estructura de configuración
 # =========================
-mkdir -p ${ORDS_CONFIG}
+mkdir -p /etc/ords/config
 
 # =========================
 # Configurar ORDS
 # =========================
-/opt/oracle/ords/bin/ords --config ${ORDS_CONFIG} config set standalone.context.path /ords
-/opt/oracle/ords/bin/ords --config ${ORDS_CONFIG} config set standalone.http.port 8080
-/opt/oracle/ords/bin/ords --config ${ORDS_CONFIG} config set standalone.static.context.path /i
-/opt/oracle/ords/bin/ords --config ${ORDS_CONFIG} config set standalone.static.path /opt/oracle/apex/images/
+/opt/oracle/ords/bin/ords --config /etc/ords/config config set standalone.context.path /ords
+/opt/oracle/ords/bin/ords --config /etc/ords/config config set standalone.http.port 8080
+/opt/oracle/ords/bin/ords --config /etc/ords/config config set standalone.static.context.path /i
+/opt/oracle/ords/bin/ords --config /etc/ords/config config set standalone.static.path /opt/oracle/apex/images/
 
 # =========================
 # Instalar ORDS con opciones predefinidas
 # =========================
 /opt/oracle/ords/bin/ords install \
-  --config ${ORDS_CONFIG} \
+  --config /etc/ords/config \
   --admin-user ${SYSDBA_USER} \
   --db-hostname ${DB_HOST} \
   --db-port ${DB_PORT} \
@@ -118,6 +118,10 @@ mkdir -p ${ORDS_CONFIG}
 # =========================
 cp /opt/oracle/ords/ords.war /usr/local/tomcat/webapps/ords.war
 
+if [ ! -f /usr/local/tomcat/webapps/ords.war ]; then
+  echo "[ERROR] El archivo ords.war no fue desplegado correctamente. Abortando."
+  exit 1
+fi
 
 # =====================
 # Copiar archivos estáticos de APEX
@@ -134,5 +138,5 @@ fi
 # =========================
 # Iniciar Tomcat
 # =========================
-echo "[INFO] Iniciando Tomcat con ORDS..."
+echo "[INFO] Instalación completa. Iniciando Tomcat en primer plano..."
 exec catalina.sh run
