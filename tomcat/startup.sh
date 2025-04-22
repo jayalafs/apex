@@ -70,48 +70,65 @@ EOF
 # =====================
 # Instalar ORDS
 # =====================
-cd /opt/oracle
-if [ ! -d ords ]; then
-  echo "[INFO] Descargando y extrayendo ORDS..."
-  curl -L -o ords-${ORDS_VERSION}.zip https://download.oracle.com/otn_software/java/ords/ords-${ORDS_VERSION}.zip
-  unzip -q ords-${ORDS_VERSION}.zip -d ords && rm -f ords-${ORDS_VERSION}.zip
-fi
 
-# =========================
-# Preparar estructura de configuración
-# =========================
+echo "[INFO] Descargando ORDS..."
+
+mkdir -p /opt/oracle/ords_tmp
+mkdir -p /opt/oracle/ords
 mkdir -p /etc/ords/config
 
-# =========================
-# Configurar ORDS
-# =========================
-/opt/oracle/ords/bin/ords --config /etc/ords/config config set standalone.context.path /ords
-/opt/oracle/ords/bin/ords --config /etc/ords/config config set standalone.http.port 8080
-/opt/oracle/ords/bin/ords --config /etc/ords/config config set standalone.static.context.path /i
-/opt/oracle/ords/bin/ords --config /etc/ords/config config set standalone.static.path /opt/oracle/apex/images/
+curl -L -o ords.zip "https://download.oracle.com/otn_software/java/ords/ords-${ORDS_VERSION}.zip"
 
-# =========================
-# Instalar ORDS con opciones predefinidas
-# =========================
-/opt/oracle/ords/bin/ords install \
-  --config /etc/ords/config \
-  --admin-user ${SYSDBA_USER} \
-  --db-hostname ${DB_HOST} \
-  --db-port ${DB_PORT} \
-  --db-servicename ${DB_SERVICE} \
-  --gateway-mode proxied \
-  --gateway-user ${ORDS_USER} \
-  --gateway-password ${ORDS_PWD} \
-  --feature-sdw true \
-  --feature-db-api true \
-  --feature-rest-enabled-sql true \
-  --feature-apex true \
-  --proxy-user \
-  --log-folder /opt/oracle/ords/logs \
-  --schema-tablespace SYSAUX \
-  --temp-tablespace TEMP \
-  --password ${ORDS_PWD} \
-  --pre-mapped
+unzip -q ords.zip -d /opt/oracle/ords_tmp
+mv /opt/oracle/ords_tmp/ords.war /opt/oracle/ords/ords.war
+chmod +x /opt/oracle/ords/ords.war
+rm -rf /opt/oracle/ords_tmp ords.zip
+
+# =====================
+# Instalar ORDS
+# =====================
+echo "[INFO] Descargando ORDS..."
+
+mkdir -p /opt/oracle/ords_tmp
+mkdir -p /opt/oracle/ords
+mkdir -p /etc/ords/config
+
+curl -L -o ords.zip "https://download.oracle.com/otn_software/java/ords/ords-${ORDS_VERSION}.zip"
+
+unzip -q ords.zip -d /opt/oracle/ords_tmp
+mv /opt/oracle/ords_tmp/ords.war /opt/oracle/ords/ords.war
+chmod +x /opt/oracle/ords/ords.war
+rm -rf /opt/oracle/ords_tmp ords.zip
+
+# =====================
+# Instalar ORDS
+# =====================
+if [ -f /opt/oracle/ords/ords.war ]; then
+  echo "[INFO] Ejecutando instalación de ORDS..."
+  cd /opt/oracle/ords
+
+  java -jar ords.war install \
+    --admin-user sys \
+    --db-hostname "${DB_HOST}" \
+    --db-port "${DB_PORT}" \
+    --db-servicename "${DB_SERVICE}" \
+    --gateway-mode proxied \
+    --gateway-user APEX_PUBLIC_USER \
+    --feature-sdw true \
+    --feature-db-api true \
+    --feature-rest-enabled-sql true \
+    --password-stdin <<EOF
+${ORACLE_PWD}
+${ORACLE_PWD}
+EOF
+
+  echo "[INFO] ORDS instalado correctamente."
+else
+  echo "[ERROR] ORDS no encontrado en /opt/oracle/ords/ords.war"
+  exit 1
+fi
+
+echo "[INFO] Instalación finalizada con éxito."
 
 # =========================
 # Desplegar en Tomcat
