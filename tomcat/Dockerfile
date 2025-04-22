@@ -1,9 +1,9 @@
-# Dockerfile para contenedor con Tomcat + SQL*Plus + APEX + ORDS
+# Dockerfile para contenedor ORDS + APEX sobre Tomcat
 
 FROM tomcat:9.0.82-jdk17-temurin
 
 # =====================
-# ARG desde .env (usados en build y luego exportados como ENV)
+# Variables de entorno desde build args
 # =====================
 ARG ORACLE_PWD
 ARG DB_HOST
@@ -28,7 +28,7 @@ ENV ORACLE_PWD=$ORACLE_PWD \
 WORKDIR /opt/oracle
 
 # =====================
-# Instalar dependencias necesarias
+# Instalar utilidades necesarias
 # =====================
 RUN apt update && \
     apt install -y unzip curl libaio1 wget
@@ -42,23 +42,13 @@ RUN wget https://download.oracle.com/otn_software/linux/instantclient/2370000/in
     unzip -qo instantclient-sqlplus-linux.x64-23.7.0.25.01.zip && \
     echo "/opt/oracle/instantclient_23_7" > /etc/ld.so.conf.d/oracle-instantclient.conf && \
     ldconfig && \
-    chmod +x /opt/oracle/instantclient_23_7/sqlplus && \
     ln -sf /opt/oracle/instantclient_23_7/sqlplus /usr/local/bin/sqlplus && \
     rm -f instantclient-*.zip
 
 ENV PATH=$PATH:/opt/oracle/instantclient_23_7
 
 # =====================
-# Descargar e instalar APEX
-# =====================
-RUN curl -L -o apex_24.1.zip https://download.oracle.com/otn_software/apex/apex_24.1.zip && \
-    unzip -q apex_24.1.zip -d /opt/oracle/apex && \
-    rm -f apex_24.1.zip && \
-    mkdir -p /usr/local/tomcat/webapps/i && \
-    cp -r /opt/oracle/apex/apex/images/* /usr/local/tomcat/webapps/i/
-
-# =====================
-# Descargar y preparar ORDS
+# Descargar ORDS
 # =====================
 RUN curl -L -o ords.zip https://download.oracle.com/otn_software/java/ords/ords-${ORDS_VERSION}.zip && \
     unzip -q ords.zip -d /opt/oracle/ords_tmp && \
@@ -68,12 +58,12 @@ RUN curl -L -o ords.zip https://download.oracle.com/otn_software/java/ords/ords-
     rm -rf /opt/oracle/ords_tmp ords.zip
 
 # =====================
-# Script de instalación automática APEX + ORDS al iniciar el contenedor
+# Copiar script de arranque (instalación APEX + ORDS + arranque de Tomcat)
 # =====================
-COPY startup.sh /opt/oracle/startup.sh
+COPY ../src/startup.sh /opt/oracle/startup.sh
 RUN chmod +x /opt/oracle/startup.sh
 
 # =====================
-# Iniciar Tomcat y ejecutar instalación de APEX/ORDS
+# Comando por defecto: espera Oracle + instala + arranca Tomcat
 # =====================
 CMD ["/opt/oracle/startup.sh"]
