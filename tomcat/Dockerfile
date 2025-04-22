@@ -14,6 +14,7 @@ ARG APEX_ADMIN_EMAIL
 ARG APEX_ADMIN_PWD
 ARG ORDS_VERSION
 ARG APEX_VERSION
+ARG APEX_ADMIN_EMAIL
 ARG TZ
 
 ENV ORACLE_PWD=$ORACLE_PWD \
@@ -33,7 +34,9 @@ WORKDIR /opt/oracle
 # Instalar utilidades necesarias
 # =====================
 RUN apt update && \
-    apt install -y unzip curl libaio1 wget
+    apt install -y unzip curl libaio1 wget netcat && \
+    rm -rf /var/lib/apt/lists/*
+
 
 # =====================
 # Instalar SQL*Plus
