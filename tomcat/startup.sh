@@ -1,82 +1,71 @@
 #!/bin/bash
-
 set -e
 
 echo "[INFO] Esperando a que Oracle DB esté disponible..."
-
-until sqlplus -L "sys/$ORACLE_PWD@$DB_HOST:$DB_PORT/$DB_SERVICE as sysdba" <<< "EXIT" >/dev/null 2>&1; do
-  echo "."
+until echo exit | sqlplus -L -s "${ORACLE_ADMIN_USER}/${ORACLE_ADMIN_PASSWORD}@//${ORACLE_HOST}:${ORACLE_PORT}/${ORACLE_SERVICE_NAME} as sysdba" | grep "Connected"; do
   sleep 5
 done
 
 echo "[INFO] Oracle DB conectado. Instalando APEX..."
 
-sqlplus "sys/$ORACLE_PWD@$DB_HOST:$DB_PORT/$DB_SERVICE as sysdba" <<EOF
-@/opt/oracle/apex/apex/apexins.sql SYSAUX SYSAUX TEMP /i/
-EXIT;
+cd /opt/oracle
+
+# Descargar e instalar APEX
+curl -L -o apex_${APEX_VERSION}.zip https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip
+unzip -q apex_${APEX_VERSION}.zip -d /opt/oracle/apex && rm apex_${APEX_VERSION}.zip
+
+cd /opt/oracle/apex
+
+echo "[INFO] Instalando APEX..."
+sqlplus -s "${ORACLE_ADMIN_USER}/${ORACLE_ADMIN_PASSWORD}@//${ORACLE_HOST}:${ORACLE_PORT}/${ORACLE_SERVICE_NAME} as sysdba" <<EOF
+@apexins.sql SYSAUX SYSAUX TEMP /i/
+EXIT
 EOF
 
 echo "[INFO] Desbloqueando usuario APEX_PUBLIC_USER..."
-
-sqlplus "sys/$ORACLE_PWD@$DB_HOST:$DB_PORT/$DB_SERVICE as sysdba" <<EOF
-ALTER USER APEX_PUBLIC_USER IDENTIFIED BY $ORACLE_PWD ACCOUNT UNLOCK;
+sqlplus -s "${ORACLE_ADMIN_USER}/${ORACLE_ADMIN_PASSWORD}@//${ORACLE_HOST}:${ORACLE_PORT}/${ORACLE_SERVICE_NAME} as sysdba" <<EOF
+ALTER USER APEX_PUBLIC_USER IDENTIFIED BY ${ORDS_PUBLIC_PASSWORD} ACCOUNT UNLOCK;
 EXIT;
 EOF
 
 echo "[INFO] Creando usuario ADMIN de APEX si no existe..."
-
-sqlplus "sys/$ORACLE_PWD@$DB_HOST:$DB_PORT/$DB_SERVICE as sysdba" <<EOF
-SET SERVEROUTPUT ON
-DECLARE
-  v_exists NUMBER;
+sqlplus -s "${ORACLE_ADMIN_USER}/${ORACLE_ADMIN_PASSWORD}@//${ORACLE_HOST}:${ORACLE_PORT}/${ORACLE_SERVICE_NAME} as sysdba" <<EOF
 BEGIN
   APEX_UTIL.set_security_group_id(10);
-
-  SELECT COUNT(*) INTO v_exists
-  FROM APEX_240100.WWV_FLOW_FND_USER
-  WHERE user_name = '$APEX_ADMIN';
-
-  IF v_exists = 0 THEN
-    APEX_UTIL.create_user(
-      p_user_name       => '$APEX_ADMIN',
-      p_email_address   => '$APEX_ADMIN_EMAIL',
-      p_web_password    => '$APEX_ADMIN_PWD',
-      p_developer_privs => 'ADMIN');
-    COMMIT;
-    DBMS_OUTPUT.PUT_LINE('Usuario ADMIN creado correctamente.');
-  ELSE
-    DBMS_OUTPUT.PUT_LINE('Usuario ADMIN ya existe.');
-  END IF;
+  APEX_UTIL.create_user(
+    p_user_name       => 'ADMIN',
+    p_email_address   => '${APEX_ADMIN_EMAIL}',
+    p_web_password    => '${APEX_ADMIN_PASSWORD}',
+    p_developer_privs => 'ADMIN');
+  COMMIT;
 END;
 /
 EXIT;
 EOF
 
 echo "[INFO] Configurando ORDS..."
-
-mkdir -p /etc/ords/config
-java -jar /opt/oracle/ords/ords.war configdir /etc/ords/config
+cd /opt/oracle/ords
+java -jar ords.war configdir ${ORDS_CONFIG_DIR}
 
 echo "[INFO] Instalando ORDS..."
-echo "$ORACLE_PWD" > /tmp/ords_pass.txt
-echo "$ORACLE_PWD" >> /tmp/ords_pass.txt
-
-java -jar /opt/oracle/ords/ords.war install \
-  --admin-user sys \
-  --db-hostname $DB_HOST \
-  --db-port $DB_PORT \
-  --db-servicename $DB_SERVICE \
+java -jar ords.war install \
+  --admin-user "${ORACLE_ADMIN_USER}" \
+  --db-hostname "${ORACLE_HOST}" \
+  --db-port "${ORACLE_PORT}" \
+  --db-servicename "${ORACLE_SERVICE_NAME}" \
   --gateway-mode proxied \
   --gateway-user APEX_PUBLIC_USER \
   --feature-sdw true \
   --feature-db-api true \
   --feature-rest-enabled-sql true \
-  --password-stdin < /tmp/ords_pass.txt
+  --password-stdin <<EOF
+${ORACLE_ADMIN_PASSWORD}
+${ORDS_PUBLIC_PASSWORD}
+EOF
 
-rm -f /tmp/ords_pass.txt
-
-echo "[INFO] Copiando ORDS a Tomcat..."
-cp /opt/oracle/ords/ords.war /usr/local/tomcat/webapps/
+echo "[INFO] Copiando archivos estáticos de APEX a Tomcat..."
+mkdir -p /usr/local/tomcat/webapps/i
+cp -r /opt/oracle/apex/images/* /usr/local/tomcat/webapps/i/
 
 echo "[INFO] Iniciando Tomcat..."
-exec /usr/local/tomcat/bin/catalina.sh run
+catalina.sh run
