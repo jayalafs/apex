@@ -10,7 +10,15 @@ do
   sleep 5
 done
 
-echo "[INFO] Oracle DB está disponible, iniciando instalación de APEX y ORDS..."
+echo "[INFO] Oracle DB está disponible. Verificando que el listener esté activo..."
+
+until nc -z ${DB_HOST} ${DB_PORT}
+do
+  echo "[WARN] Listener aún no disponible en ${DB_HOST}:${DB_PORT}, esperando..."
+  sleep 5
+done
+
+echo "[INFO] Listener activo. Iniciando instalación de APEX y ORDS..."
 
 # =====================
 # Instalar APEX
