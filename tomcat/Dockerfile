@@ -28,22 +28,25 @@ RUN apt update && \
 # =====================
 RUN wget https://download.oracle.com/otn_software/linux/instantclient/2370000/instantclient-basic-linux.x64-23.7.0.25.01.zip && \
     wget https://download.oracle.com/otn_software/linux/instantclient/2370000/instantclient-sqlplus-linux.x64-23.7.0.25.01.zip && \
-    unzip instantclient-basic-linux.x64-23.7.0.25.01.zip && \
-    unzip instantclient-sqlplus-linux.x64-23.7.0.25.01.zip && \
+    unzip -qo instantclient-basic-linux.x64-23.7.0.25.01.zip && \
+    unzip -qo instantclient-sqlplus-linux.x64-23.7.0.25.01.zip && \
     echo "/opt/oracle/instantclient_23_7" > /etc/ld.so.conf.d/oracle-instantclient.conf && \
     ldconfig && \
+    chmod +x /opt/oracle/instantclient_23_7/sqlplus && \
     ln -s /opt/oracle/instantclient_23_7/sqlplus /usr/local/bin/sqlplus && \
-    rm *.zip
+    rm -f instantclient-*.zip
+
 
 ENV PATH=$PATH:/opt/oracle/instantclient_23_7
 
 # =====================
 # Descargar e instalar APEX
 # =====================
-RUN curl -L -o apex_${APEX_VERSION}.zip https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip && \
-    unzip apex_${APEX_VERSION}.zip -d /opt/oracle/apex && \
-    rm apex_${APEX_VERSION}.zip && \
-    cp -r /opt/oracle/apex/apex/images/* /usr/local/tomcat/webapps/i/
+RUN curl -L -o apex_${APEX_VERSION}.zip https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip
+RUN unzip -q apex_${APEX_VERSION}.zip -d /opt/oracle/apex && \
+rm -f apex_${APEX_VERSION}.zip && \
+mkdir -p /usr/local/tomcat/webapps/i && \
+cp -r /opt/oracle/apex/apex/images/* /usr/local/tomcat/webapps/i/
 
 # =====================
 # Descargar y preparar ORDS

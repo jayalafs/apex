@@ -12,7 +12,7 @@ done
 echo "[INFO] Oracle DB conectado. Instalando APEX..."
 
 sqlplus "sys/$ORACLE_PWD@$DB_HOST:$DB_PORT/$DB_SERVICE as sysdba" <<EOF
-@/opt/oracle/apex/apexins.sql SYSAUX SYSAUX TEMP /i/
+@/opt/oracle/apex/apex/apexins.sql SYSAUX SYSAUX TEMP /i/
 EXIT;
 EOF
 
@@ -55,7 +55,7 @@ EOF
 echo "[INFO] Configurando ORDS..."
 
 mkdir -p /etc/ords/config
-/opt/oracle/ords/ords.war configdir /etc/ords/config
+java -jar /opt/oracle/ords/ords.war configdir /etc/ords/config
 
 echo "[INFO] Instalando ORDS..."
 echo "$ORACLE_PWD" > /tmp/ords_pass.txt
