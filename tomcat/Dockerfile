@@ -3,17 +3,27 @@
 FROM tomcat:9.0.82-jdk17-temurin
 
 # =====================
-# Variables de entorno
+# ARG desde .env (usados en build y luego exportados como ENV)
 # =====================
-ENV ORACLE_PWD=Oracle123 \
-    APEX_VERSION=24.1 \
-    ORDS_VERSION=25.1.0.100.1652 \
-    DB_HOST=oracle-db \
-    DB_PORT=1521 \
-    DB_SERVICE=FREEPDB1 \
-    APEX_ADMIN=ADMIN \
-    APEX_ADMIN_EMAIL=jayala@solvet-it.com.py \
-    APEX_ADMIN_PWD=OrclAPEX1999!
+ARG ORACLE_PWD
+ARG DB_HOST
+ARG DB_PORT
+ARG DB_SERVICE
+ARG APEX_ADMIN
+ARG APEX_ADMIN_EMAIL
+ARG APEX_ADMIN_PWD
+ARG ORDS_VERSION
+ARG TZ
+
+ENV ORACLE_PWD=$ORACLE_PWD \
+    DB_HOST=$DB_HOST \
+    DB_PORT=$DB_PORT \
+    DB_SERVICE=$DB_SERVICE \
+    APEX_ADMIN=$APEX_ADMIN \
+    APEX_ADMIN_EMAIL=$APEX_ADMIN_EMAIL \
+    APEX_ADMIN_PWD=$APEX_ADMIN_PWD \
+    ORDS_VERSION=$ORDS_VERSION \
+    TZ=$TZ
 
 WORKDIR /opt/oracle
 
@@ -33,20 +43,19 @@ RUN wget https://download.oracle.com/otn_software/linux/instantclient/2370000/in
     echo "/opt/oracle/instantclient_23_7" > /etc/ld.so.conf.d/oracle-instantclient.conf && \
     ldconfig && \
     chmod +x /opt/oracle/instantclient_23_7/sqlplus && \
-    ln -s /opt/oracle/instantclient_23_7/sqlplus /usr/local/bin/sqlplus && \
+    ln -sf /opt/oracle/instantclient_23_7/sqlplus /usr/local/bin/sqlplus && \
     rm -f instantclient-*.zip
-
 
 ENV PATH=$PATH:/opt/oracle/instantclient_23_7
 
 # =====================
 # Descargar e instalar APEX
 # =====================
-RUN curl -L -o apex_${APEX_VERSION}.zip https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip
-RUN unzip -q apex_${APEX_VERSION}.zip -d /opt/oracle/apex && \
-rm -f apex_${APEX_VERSION}.zip && \
-mkdir -p /usr/local/tomcat/webapps/i && \
-cp -r /opt/oracle/apex/apex/images/* /usr/local/tomcat/webapps/i/
+RUN curl -L -o apex_24.1.zip https://download.oracle.com/otn_software/apex/apex_24.1.zip && \
+    unzip -q apex_24.1.zip -d /opt/oracle/apex && \
+    rm -f apex_24.1.zip && \
+    mkdir -p /usr/local/tomcat/webapps/i && \
+    cp -r /opt/oracle/apex/apex/images/* /usr/local/tomcat/webapps/i/
 
 # =====================
 # Descargar y preparar ORDS

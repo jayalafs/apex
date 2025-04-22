@@ -8,9 +8,9 @@ services:
       - "1521:1521"
       - "5500:5500"
     environment:
-      - ORACLE_PWD=Oracle123
+      - ORACLE_PWD=${ORACLE_PWD}
     volumes:
-      - oracle_data:/opt/oracle/oradata    # Persistencia de DB
+      - oracle_data:/opt/oracle/oradata
     networks:
       apex_prod_net:
         ipv4_address: 172.41.1.10
@@ -18,26 +18,35 @@ services:
   tomcat:
     build:
       context: ./tomcat
+      dockerfile: Dockerfile
       args:
-        ORDS_VERSION: 23.4.0
-        ORDS_HOME: /opt/ords
-        ORDS_CONFIG: /etc/ords/config
-        DB_HOST: oracle-db
-        DB_PORT: 1521
-        DB_SERVICE: FREEPDB1
-        SYS_PASSWORD: Oracle123
-        APEX_USER: APEX_PUBLIC_USER
+        ORACLE_PWD: ${ORACLE_PWD}
+        DB_HOST: ${DB_HOST}
+        DB_PORT: ${DB_PORT}
+        DB_SERVICE: ${DB_SERVICE}
+        APEX_ADMIN: ${APEX_ADMIN}
+        APEX_ADMIN_EMAIL: ${APEX_ADMIN_EMAIL}
+        APEX_ADMIN_PWD: ${APEX_ADMIN_PWD}
+        ORDS_VERSION: ${ORDS_VERSION}
+        TZ: ${TZ}
     container_name: tomcat-ords
     ports:
       - "8080:8080"
     volumes:
-      - ./ords_config:/etc/ords/config      # Persistencia de configuración ORDS
-      - ./appfiles:/usr/local/tomcat/webapps/appfiles  # Recursos web externos
-      - tomcat_data:/usr/local/tomcat/logs  # Persistencia de logs (opcional)
+      - ./ords_config:/etc/ords/config
+      - ./appfiles:/usr/local/tomcat/webapps/appfiles
+      - tomcat_data:/usr/local/tomcat/logs
     depends_on:
       - oracle-db
     environment:
-      - TZ=America/Asuncion
+      - ORACLE_PWD=${ORACLE_PWD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_SERVICE=${DB_SERVICE}
+      - APEX_ADMIN=${APEX_ADMIN}
+      - APEX_ADMIN_EMAIL=${APEX_ADMIN_EMAIL}
+      - APEX_ADMIN_PWD=${APEX_ADMIN_PWD}
+      - TZ=${TZ}
     networks:
       apex_prod_net:
         ipv4_address: 172.41.1.11
