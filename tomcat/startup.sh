@@ -70,34 +70,54 @@ EOF
 # =====================
 # Instalar ORDS
 # =====================
-if [ -f /opt/oracle/ords/ords.war ]; then
-  echo "[INFO] Ejecutando instalación de ORDS..."]
-
-  # Asegurarse que el binario `ords` esté en el PATH
-  export PATH=$PATH:/opt/oracle/ords
-
-  ords install \
-    --config /etc/ords/config \
-    --admin-user sys \
-    --db-hostname ${DB_HOST} \
-    --db-port ${DB_PORT} \
-    --db-servicename ${DB_SERVICE} \
-    --gateway-mode proxied \
-    --gateway-user APEX_PUBLIC_USER \
-    --gateway-password "${ORACLE_PWD}" \
-    --feature-sql-developer-web true \
-    --feature-rest-enabled-sql true \
-    --feature-db-api true \
-    --schema-tablespace SYSAUX \
-    --temp-tablespace TEMP \
-    --proxy-user \
-    --log-folder /opt/oracle/ords/logs \
-    --password "${ORACLE_PWD}" \
-    --pre-mapped
-else
-  echo "[ERROR] ORDS no encontrado en /opt/oracle/ords/ords.war"
-  exit 1
+cd /opt/oracle
+if [ ! -d ords ]; then
+  echo "[INFO] Descargando y extrayendo ORDS..."
+  curl -L -o ords-${ORDS_VERSION}.zip https://download.oracle.com/otn_software/java/ords/ords-${ORDS_VERSION}.zip
+  unzip -q ords-${ORDS_VERSION}.zip -d ords && rm -f ords-${ORDS_VERSION}.zip
 fi
+
+# =========================
+# Preparar estructura de configuración
+# =========================
+mkdir -p ${ORDS_CONFIG}
+
+# =========================
+# Configurar ORDS
+# =========================
+/opt/oracle/ords/bin/ords --config ${ORDS_CONFIG} config set standalone.context.path /ords
+/opt/oracle/ords/bin/ords --config ${ORDS_CONFIG} config set standalone.http.port 8080
+/opt/oracle/ords/bin/ords --config ${ORDS_CONFIG} config set standalone.static.context.path /i
+/opt/oracle/ords/bin/ords --config ${ORDS_CONFIG} config set standalone.static.path /opt/oracle/apex/images/
+
+# =========================
+# Instalar ORDS con opciones predefinidas
+# =========================
+/opt/oracle/ords/bin/ords install \
+  --config ${ORDS_CONFIG} \
+  --admin-user ${SYSDBA_USER} \
+  --db-hostname ${DB_HOST} \
+  --db-port ${DB_PORT} \
+  --db-servicename ${DB_SERVICE} \
+  --gateway-mode proxied \
+  --gateway-user ${ORDS_USER} \
+  --gateway-password ${ORDS_PWD} \
+  --feature-sdw true \
+  --feature-db-api true \
+  --feature-rest-enabled-sql true \
+  --feature-apex true \
+  --proxy-user \
+  --log-folder /opt/oracle/ords/logs \
+  --schema-tablespace SYSAUX \
+  --temp-tablespace TEMP \
+  --password ${ORDS_PWD} \
+  --pre-mapped
+
+# =========================
+# Desplegar en Tomcat
+# =========================
+cp /opt/oracle/ords/ords.war /usr/local/tomcat/webapps/ords.war
+
 
 # =====================
 # Copiar archivos estáticos de APEX
@@ -111,5 +131,8 @@ else
   exit 1
 fi
 
-echo "[INFO] Iniciando Tomcat..."
+# =========================
+# Iniciar Tomcat
+# =========================
+echo "[INFO] Iniciando Tomcat con ORDS..."
 exec catalina.sh run
