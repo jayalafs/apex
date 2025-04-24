@@ -68,46 +68,35 @@ EXIT;
 EOF
 
 # =====================
-# Instalar ORDS
-# =====================
-
-echo "[INFO] Descargando ORDS..."
-
-mkdir -p /opt/oracle/ords_tmp
-mkdir -p /opt/oracle/ords
-mkdir -p /etc/ords/config
-
-curl -L -o ords.zip "https://download.oracle.com/otn_software/java/ords/ords-${ORDS_VERSION}.zip"
-
-unzip -q ords.zip -d /opt/oracle/ords_tmp
-mv /opt/oracle/ords_tmp/ords.war /opt/oracle/ords/ords.war
-chmod +x /opt/oracle/ords/ords.war
-rm -rf /opt/oracle/ords_tmp ords.zip
-
-# =====================
-# Instalar ORDS
+# Descargar ORDS
 # =====================
 echo "[INFO] Descargando ORDS..."
 
-mkdir -p /opt/oracle/ords_tmp
-mkdir -p /opt/oracle/ords
-mkdir -p /etc/ords/config
+ORDS_VERSION=${ORDS_VERSION:-25.1.0.100.1652}
+ORDS_DOWNLOAD_DIR="/opt/ords"
+ORDS_PATH="/usr/local/bin/ords"
+ORDS_CONFIG="/etc/ords/config"
 
+mkdir -p "$ORDS_DOWNLOAD_DIR" && cd "$ORDS_DOWNLOAD_DIR"
 curl -L -o ords.zip "https://download.oracle.com/otn_software/java/ords/ords-${ORDS_VERSION}.zip"
 
-unzip -q ords.zip -d /opt/oracle/ords_tmp
-mv /opt/oracle/ords_tmp/ords.war /opt/oracle/ords/ords.war
-chmod +x /opt/oracle/ords/ords.war
-rm -rf /opt/oracle/ords_tmp ords.zip
+unzip -q ords.zip
+chmod +x ords.war
+rm -f ords.zip
+mv ords.war "$ORDS_PATH"
+
+# Configurar directorio de configuración
+mkdir -p "$ORDS_CONFIG"
+chmod -R 777 "$ORDS_CONFIG"
+export ORDS_CONFIG="$ORDS_CONFIG"
 
 # =====================
 # Instalar ORDS
 # =====================
-if [ -f /opt/oracle/ords/ords.war ]; then
-  echo "[INFO] Ejecutando instalación de ORDS..."
-  cd /opt/oracle/ords
+echo "[INFO] Ejecutando instalación de ORDS..."
 
-  java -jar ords.war install \
+if [ -f "$ORDS_PATH" ]; then
+  java -jar "$ORDS_PATH" install \
     --admin-user sys \
     --db-hostname "${DB_HOST}" \
     --db-port "${DB_PORT}" \
@@ -124,7 +113,7 @@ EOF
 
   echo "[INFO] ORDS instalado correctamente."
 else
-  echo "[ERROR] ORDS no encontrado en /opt/oracle/ords/ords.war"
+  echo "[ERROR] ORDS no encontrado en $ORDS_PATH"
   exit 1
 fi
 
@@ -133,7 +122,7 @@ echo "[INFO] Instalación finalizada con éxito."
 # =========================
 # Desplegar en Tomcat
 # =========================
-cp /opt/oracle/ords/ords.war /usr/local/tomcat/webapps/ords.war
+cp "$ORDS_PATH" /usr/local/tomcat/webapps/ords.war
 
 if [ ! -f /usr/local/tomcat/webapps/ords.war ]; then
   echo "[ERROR] El archivo ords.war no fue desplegado correctamente. Abortando."
