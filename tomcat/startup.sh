@@ -93,10 +93,9 @@ chmod -R 777 "$ORDS_CONFIG"
 export ORDS_CONFIG="$ORDS_CONFIG"
 
 # =====================
-# Ejecutar instalación
+# Ejecutar instalación de ORDS
 # =====================
-echo "[INFO] Ejecutando instalación de ORDS..."
-
+echo "[INFO] Instalando ORDS..."
 if [ -f "$ORDS_CLI_PATH" ]; then
   "$ORDS_CLI_PATH" install \
     --admin-user sys \
@@ -113,10 +112,8 @@ ${ORACLE_PWD}
 ${ORACLE_PWD}
 ${ORACLE_PWD}
 EOF
-
-  echo "[INFO] ORDS instalado correctamente."
 else
-  echo "[ERROR] CLI de ORDS no encontrado en $ORDS_CLI_PATH"
+  echo "[ERROR] No se encontró ORDS CLI en $ORDS_CLI_PATH"
   exit 1
 fi
 
@@ -125,20 +122,16 @@ fi
 # =====================
 if [ -f "$ORDS_WAR_PATH" ]; then
   cp "$ORDS_WAR_PATH" /usr/local/tomcat/webapps/ords.war
-  # Corregir permisos de ORDS para Tomcat
-chown -R root:root /usr/local/tomcat/webapps/ords.war
-chmod 644 /usr/local/tomcat/webapps/ords.war
-
-# Asegurar permisos del directorio expandido (si ya existe o al reiniciar)
-chown -R root:root /usr/local/tomcat/webapps/ords
-chmod -R 755 /usr/local/tomcat/webapps/ords
-  echo "[INFO] ORDS.war desplegado en Tomcat."
+  chmod 644 /usr/local/tomcat/webapps/ords.war
+  echo "[INFO] ORDS.war copiado a Tomcat."
 else
-  echo "[ERROR] ords.war no encontrado en $ORDS_WAR_PATH"
+  echo "[ERROR] ords.war no encontrado."
   exit 1
 fi
 
-echo "[INFO] Instalación finalizada con éxito."
+# Asegurar permisos del WAR expandido (al reinicio)
+mkdir -p /usr/local/tomcat/webapps/ords
+chmod -R 755 /usr/local/tomcat/webapps/ords
 
 # =====================
 # Copiar archivos estáticos de APEX
@@ -148,7 +141,7 @@ if [ -d /opt/oracle/apex/images ]; then
   mkdir -p /usr/local/tomcat/webapps/i
   cp -r /opt/oracle/apex/images/* /usr/local/tomcat/webapps/i/
 else
-  echo "[ERROR] Carpeta de imágenes de APEX no encontrada."
+  echo "[ERROR] No se encontró carpeta de imágenes de APEX."
   exit 1
 fi
 
