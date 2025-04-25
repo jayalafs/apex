@@ -11,7 +11,7 @@ EXIT;
 EOF
 do
   echo "[WARN] Oracle aún no está completamente operativa. Reintentando en 5s..."
-  sleep 5
+  sleep 600
 done
 
 echo "[INFO] Oracle DB está disponible y abierta."
@@ -120,19 +120,18 @@ else
   exit 1
 fi
 
-# Corregir permisos de ORDS para Tomcat
+# =====================
+# Desplegar en Tomcat
+# =====================
+if [ -f "$ORDS_WAR_PATH" ]; then
+  cp "$ORDS_WAR_PATH" /usr/local/tomcat/webapps/ords.war
+  # Corregir permisos de ORDS para Tomcat
 chown -R root:root /usr/local/tomcat/webapps/ords.war
 chmod 644 /usr/local/tomcat/webapps/ords.war
 
 # Asegurar permisos del directorio expandido (si ya existe o al reiniciar)
 chown -R root:root /usr/local/tomcat/webapps/ords
 chmod -R 755 /usr/local/tomcat/webapps/ords
-
-# =====================
-# Desplegar en Tomcat
-# =====================
-if [ -f "$ORDS_WAR_PATH" ]; then
-  cp "$ORDS_WAR_PATH" /usr/local/tomcat/webapps/ords.war
   echo "[INFO] ORDS.war desplegado en Tomcat."
 else
   echo "[ERROR] ords.war no encontrado en $ORDS_WAR_PATH"
