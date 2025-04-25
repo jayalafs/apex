@@ -82,7 +82,7 @@ ORDS_CONFIG="/etc/ords/config"
 if [ ! -f "$ORDS_CLI_PATH" ]; then
   mkdir -p "$ORDS_DOWNLOAD_DIR" && cd "$ORDS_DOWNLOAD_DIR"
   curl -L -o ords.zip "https://download.oracle.com/otn_software/java/ords/ords-${ORDS_VERSION}.zip"
-  unzip -q ords.zip
+  unzip -oq ords.zip
   chmod +x bin/ords
   rm -f ords.zip
 fi
@@ -119,6 +119,14 @@ else
   echo "[ERROR] CLI de ORDS no encontrado en $ORDS_CLI_PATH"
   exit 1
 fi
+
+# Corregir permisos de ORDS para Tomcat
+chown -R root:root /usr/local/tomcat/webapps/ords.war
+chmod 644 /usr/local/tomcat/webapps/ords.war
+
+# Asegurar permisos del directorio expandido (si ya existe o al reiniciar)
+chown -R root:root /usr/local/tomcat/webapps/ords
+chmod -R 755 /usr/local/tomcat/webapps/ords
 
 # =====================
 # Desplegar en Tomcat
