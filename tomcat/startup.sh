@@ -68,35 +68,37 @@ EXIT;
 EOF
 
 # =====================
-# Descargar ORDS
+# Descargar e instalar ORDS
 # =====================
 echo "[INFO] Descargando ORDS..."
 
 ORDS_VERSION=${ORDS_VERSION:-25.1.0.100.1652}
-ORDS_DOWNLOAD_DIR="/opt/ords"
-ORDS_PATH="/usr/local/bin/ords"
+ORDS_DOWNLOAD_DIR="/opt/oracle/ords"
+ORDS_CLI_PATH="$ORDS_DOWNLOAD_DIR/bin/ords"
+ORDS_WAR_PATH="$ORDS_DOWNLOAD_DIR/ords.war"
 ORDS_CONFIG="/etc/ords/config"
 
-mkdir -p "$ORDS_DOWNLOAD_DIR" && cd "$ORDS_DOWNLOAD_DIR"
-curl -L -o ords.zip "https://download.oracle.com/otn_software/java/ords/ords-${ORDS_VERSION}.zip"
+# Descargar ORDS completo si no existe
+if [ ! -f "$ORDS_CLI_PATH" ]; then
+  mkdir -p "$ORDS_DOWNLOAD_DIR" && cd "$ORDS_DOWNLOAD_DIR"
+  curl -L -o ords.zip "https://download.oracle.com/otn_software/java/ords/ords-${ORDS_VERSION}.zip"
+  unzip -q ords.zip
+  chmod +x bin/ords
+  rm -f ords.zip
+fi
 
-unzip -q ords.zip
-chmod +x ords.war
-rm -f ords.zip
-mv ords.war "$ORDS_PATH"
-
-# Configurar directorio de configuración
+# Configuración de ORDS
 mkdir -p "$ORDS_CONFIG"
 chmod -R 777 "$ORDS_CONFIG"
 export ORDS_CONFIG="$ORDS_CONFIG"
 
 # =====================
-# Instalar ORDS
+# Ejecutar instalación
 # =====================
 echo "[INFO] Ejecutando instalación de ORDS..."
 
-if [ -f "$ORDS_PATH" ]; then
-  java -jar "$ORDS_PATH" install \
+if [ -f "$ORDS_CLI_PATH" ]; then
+  "$ORDS_CLI_PATH" install \
     --admin-user sys \
     --db-hostname "${DB_HOST}" \
     --db-port "${DB_PORT}" \
@@ -109,25 +111,27 @@ if [ -f "$ORDS_PATH" ]; then
     --password-stdin <<EOF
 ${ORACLE_PWD}
 ${ORACLE_PWD}
+${ORACLE_PWD}
 EOF
 
   echo "[INFO] ORDS instalado correctamente."
 else
-  echo "[ERROR] ORDS no encontrado en $ORDS_PATH"
+  echo "[ERROR] CLI de ORDS no encontrado en $ORDS_CLI_PATH"
+  exit 1
+fi
+
+# =====================
+# Desplegar en Tomcat
+# =====================
+if [ -f "$ORDS_WAR_PATH" ]; then
+  cp "$ORDS_WAR_PATH" /usr/local/tomcat/webapps/ords.war
+  echo "[INFO] ORDS.war desplegado en Tomcat."
+else
+  echo "[ERROR] ords.war no encontrado en $ORDS_WAR_PATH"
   exit 1
 fi
 
 echo "[INFO] Instalación finalizada con éxito."
-
-# =========================
-# Desplegar en Tomcat
-# =========================
-cp "$ORDS_PATH" /usr/local/tomcat/webapps/ords.war
-
-if [ ! -f /usr/local/tomcat/webapps/ords.war ]; then
-  echo "[ERROR] El archivo ords.war no fue desplegado correctamente. Abortando."
-  exit 1
-fi
 
 # =====================
 # Copiar archivos estáticos de APEX
