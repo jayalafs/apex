@@ -44,6 +44,18 @@ EXIT;
 EOF
 
 # =====================
+# Descargar y descomprimir ORDS si no existe
+# =====================
+if [ ! -x /opt/oracle/ords/bin/ords ]; then
+  echo "[INFO] Descargando y descomprimiendo ORDS..."
+  curl -L -o /opt/oracle/ords-latest.zip "https://download.oracle.com/java/ords/ords-latest.zip"
+  unzip -o /opt/oracle/ords-latest.zip -d /opt/oracle/ords-temp
+  mkdir -p /opt/oracle/ords
+  mv /opt/oracle/ords-temp/* /opt/oracle/ords/
+  rm -rf /opt/oracle/ords-temp /opt/oracle/ords-latest.zip
+fi
+
+# =====================
 # Instalar ORDS en modo proxied
 # =====================
 echo "[INFO] Instalando ORDS en modo proxied..."
