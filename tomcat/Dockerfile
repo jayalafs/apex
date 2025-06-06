@@ -33,7 +33,6 @@ RUN mkdir -p /etc/ords/config \
 
 # Copiar scripts
 COPY startup.sh /opt/startup.sh
-COPY unattended_apex_install_23c.sh /opt/oracle/scripts/unattended_apex_install_23c.sh
 
 RUN chmod +x /opt/startup.sh /opt/oracle/scripts/unattended_apex_install_23c.sh
 
