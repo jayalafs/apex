@@ -1,82 +1,47 @@
-# Dockerfile para contenedor ORDS + APEX sobre Tomcat
-
 FROM tomcat:9.0.82-jdk17-temurin
 
-# =====================
-# Variables de entorno desde build args
-# =====================
-ARG ORACLE_PWD
-ARG DB_HOST
-ARG DB_PORT
-ARG DB_SERVICE
-ARG APEX_ADMIN
-ARG APEX_ADMIN_EMAIL
-ARG APEX_ADMIN_PWD
-ARG ORDS_VERSION
-ARG APEX_VERSION
-ARG APEX_ADMIN_EMAIL
-ARG TZ
+LABEL maintainer="jayala@solvet-it.com.py"
+ENV DEBIAN_FRONTEND=noninteractive
 
-ENV ORACLE_PWD=$ORACLE_PWD \
-    DB_HOST=$DB_HOST \
-    DB_PORT=$DB_PORT \
-    DB_SERVICE=$DB_SERVICE \
-    APEX_ADMIN=$APEX_ADMIN \
-    APEX_ADMIN_EMAIL=$APEX_ADMIN_EMAIL \
-    APEX_ADMIN_PWD=$APEX_ADMIN_PWD \
-    ORDS_VERSION=$ORDS_VERSION \
-    APEX_VERSION=$APEX_VERSION \
-    TZ=$TZ
+# Establecer zona horaria y variables clave
+ENV TZ=America/Asuncion
 
+# Instalar dependencias necesarias
+RUN apt-get update && \
+    apt-get install -y curl unzip libaio1 wget && \
+    apt-get clean
+
+# Instalar SQL*Plus (Oracle Instant Client)
 WORKDIR /opt/oracle
 
-# =====================
-# Instalar utilidades necesarias
-# =====================
-RUN apt update && \
-    apt install -y unzip curl libaio1 wget netcat && \
-    rm -rf /var/lib/apt/lists/*
-
-
-# =====================
-# Instalar SQL*Plus
-# =====================
 RUN wget https://download.oracle.com/otn_software/linux/instantclient/2370000/instantclient-basic-linux.x64-23.7.0.25.01.zip && \
     wget https://download.oracle.com/otn_software/linux/instantclient/2370000/instantclient-sqlplus-linux.x64-23.7.0.25.01.zip && \
-    unzip -qo instantclient-basic-linux.x64-23.7.0.25.01.zip && \
-    unzip -qo instantclient-sqlplus-linux.x64-23.7.0.25.01.zip && \
+    unzip -o instantclient-basic-linux.x64-23.7.0.25.01.zip && \
+    unzip -o instantclient-sqlplus-linux.x64-23.7.0.25.01.zip && \
+    rm -f instantclient-*.zip && \
     echo "/opt/oracle/instantclient_23_7" > /etc/ld.so.conf.d/oracle-instantclient.conf && \
     ldconfig && \
-    ln -sf /opt/oracle/instantclient_23_7/sqlplus /usr/local/bin/sqlplus && \
-    rm -f instantclient-*.zip
+    ln -s /opt/oracle/instantclient_23_7/sqlplus /usr/local/bin/sqlplus && \
+    echo 'export PATH=$PATH:/opt/oracle/instantclient_23_7' > /etc/profile.d/sqlplus.sh && \
+    chmod +x /etc/profile.d/sqlplus.sh
 
-ENV PATH=$PATH:/opt/oracle/instantclient_23_7
+# Crear estructura de carpetas
+RUN mkdir -p /etc/ords/config \
+             /opt/oracle/apex \
+             /opt/oracle/ords \
+             /usr/local/tomcat/webapps/i
 
-# =====================
-# Descargar ORDS
-# =====================
-RUN curl -L -o ords.zip https://download.oracle.com/otn_software/java/ords/ords-${ORDS_VERSION}.zip && \
-    unzip -q ords.zip -d /opt/oracle/ords_tmp && \
-    mkdir -p /opt/oracle/ords /etc/ords/config && \
-    cp /opt/oracle/ords_tmp/ords.war /opt/oracle/ords/ords.war && \
-    cp /opt/oracle/ords_tmp/bin/ords /usr/local/bin/ords && \
-    chmod +x /usr/local/bin/ords && \
-    rm -rf /opt/oracle/ords_tmp ords.zip
+# Copiar scripts
+COPY startup.sh /opt/startup.sh
+COPY unattended_apex_install_23c.sh /opt/oracle/scripts/unattended_apex_install_23c.sh
 
-# =====================
-# Descargar APEX
-# =====================
-RUN curl -L -o apex_${APEX_VERSION}.zip https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip && \
-    unzip -oq apex_${APEX_VERSION}.zip -d /opt/oracle && \
-    rm -f apex_${APEX_VERSION}.zip
+RUN chmod +x /opt/startup.sh /opt/oracle/scripts/unattended_apex_install_23c.sh
 
-# =====================
-# Copiar script de arranque (instalación APEX + ORDS + arranque de Tomcat)
-# =====================
-COPY startup.sh /opt/oracle/startup.sh
-RUN chmod +x /opt/oracle/startup.sh
+# Establecer directorio de trabajo
+WORKDIR /opt
 
-# =====================
-# Comando por defecto: espera Oracle + instala + arranca Tomcat
-# =====================
-CMD ["/opt/oracle/startup.sh"]
+# Exponer el puerto web
+EXPOSE 8080
+
+# Entrypoint (ejecuta startup.sh como proceso principal)
+CMD ["/opt/startup.sh"]

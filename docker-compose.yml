@@ -1,4 +1,4 @@
-version: '3.9'
+version: "3.9"
 
 services:
   oracle-db:
@@ -6,65 +6,41 @@ services:
     container_name: oracle-db
     ports:
       - "1521:1521"
-      - "5500:5500"
     environment:
       - ORACLE_PWD=${ORACLE_PWD}
+      - ORACLE_CHARACTERSET=AL32UTF8
+      - TZ=${TZ}
     volumes:
-      - oracle_data:/opt/oracle/oradata
+      - oracle-data:/opt/oracle/oradata
     networks:
-      apex_prod_net:
-        ipv4_address: 172.41.1.10
+      - apexnet
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo 'exit' | sqlplus sys/${ORACLE_PWD}@localhost:1521/FREEPDB1 as sysdba"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
 
-  tomcat:
+  ords-app:
     build:
-      context: ./tomcat
+      context: .
       dockerfile: Dockerfile
-      args:
-        ORACLE_PWD: ${ORACLE_PWD}
-        DB_HOST: ${DB_HOST}
-        DB_PORT: ${DB_PORT}
-        DB_SERVICE: ${DB_SERVICE}
-        APEX_ADMIN: ${APEX_ADMIN}
-        APEX_ADMIN_EMAIL: ${APEX_ADMIN_EMAIL}
-        APEX_ADMIN_PWD: ${APEX_ADMIN_PWD}
-        ORDS_VERSION: ${ORDS_VERSION}
-        APEX_VERSION: ${APEX_VERSION}
-        APEX_ADMIN_EMAIl: ${APEX_ADMIN_EMAIl}
-        TZ: ${TZ}
-    container_name: tomcat-ords
+    container_name: ords-app
     ports:
       - "8080:8080"
-    volumes:
-      - ./ords_config:/etc/ords/config
-      - ./appfiles:/usr/local/tomcat/webapps/appfiles
-      - tomcat_data:/usr/local/tomcat/logs
     depends_on:
-      - oracle-db
-    environment:
-      - ORACLE_PWD=${ORACLE_PWD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_SERVICE=${DB_SERVICE}
-      - APEX_ADMIN=${APEX_ADMIN}
-      - APEX_ADMIN_EMAIL=${APEX_ADMIN_EMAIL}
-      - APEX_ADMIN_PWD=${APEX_ADMIN_PWD}
-      - TZ=${TZ}
+      oracle-db:
+        condition: service_healthy
+    env_file:
+      - .env
+    volumes:
+      - ords-logs:/home/oracle/logs
     networks:
-      apex_prod_net:
-        ipv4_address: 172.41.1.11
+      - apexnet
 
 volumes:
-  oracle_data:
-  tomcat_data:
+  oracle-data:
+  ords-logs:
 
 networks:
-  apex_prod_net:
-    name: apex_prod_net
+  apexnet:
     driver: bridge
-    attachable: true
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.41.0.0/16
-          ip_range: 172.41.1.0/24
-          gateway: 172.41.1.254

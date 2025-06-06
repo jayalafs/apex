@@ -3,34 +3,24 @@ set -e
 
 echo "[INFO] Esperando a que Oracle DB esté disponible..."
 
-# Espera robusta a que la base de datos esté completamente disponible
+# Espera hasta que Oracle DB esté abierta
 until sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" <<EOF > /dev/null 2>&1
 SET PAGESIZE 1
 SELECT 'READY' FROM v\$instance WHERE status='OPEN';
 EXIT;
 EOF
 do
-  echo "[WARN] Oracle aún no está completamente operativa. Reintentando en 5s..."
-  sleep 600
+  echo "[WARN] Oracle aún no está lista. Reintentando en 10s..."
+  sleep 10
 done
 
-echo "[INFO] Oracle DB está disponible y abierta."
-
-# Verificar que el listener esté operativo
-echo "[INFO] Verificando listener con lsnrctl status..."
-until echo "lsnrctl status" | sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" > /dev/null 2>&1
-do
-  echo "[WARN] Listener aún no responde, reintentando en 5s..."
-  sleep 5
-done
-
-echo "[INFO] Listener activo. Iniciando instalación de APEX y ORDS..."
+echo "[INFO] Oracle DB está disponible."
 
 # =====================
 # Instalar APEX
 # =====================
 if [ -d /opt/oracle/apex ]; then
-  echo "[INFO] Instalando APEX..."
+  echo "[INFO] Iniciando instalación de APEX..."
   cd /opt/oracle/apex
   sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" <<EOF
 @apexins.sql SYSAUX SYSAUX TEMP /i/
@@ -45,7 +35,7 @@ fi
 # Desbloquear APEX_PUBLIC_USER
 # =====================
 sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" <<EOF
-ALTER USER APEX_PUBLIC_USER IDENTIFIED BY ${ORACLE_PWD} ACCOUNT UNLOCK;
+ALTER USER APEX_PUBLIC_USER IDENTIFIED BY ${ORDS_PWD} ACCOUNT UNLOCK;
 EXIT;
 EOF
 
@@ -53,100 +43,84 @@ EOF
 # Crear usuario ADMIN de APEX
 # =====================
 sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" <<EOF
+DECLARE
+  v_exists NUMBER;
 BEGIN
   APEX_UTIL.set_security_group_id(10);
-  APEX_UTIL.create_user(
-    p_user_name => '${APEX_ADMIN}',
-    p_email_address => '${APEX_ADMIN_EMAIL}',
-    p_web_password => '${APEX_ADMIN_PWD}',
-    p_developer_privs => 'ADMIN'
-  );
-  COMMIT;
+  SELECT COUNT(*) INTO v_exists FROM APEX_240100.WWV_FLOW_FND_USER WHERE user_name = '${APEX_ADMIN}';
+  IF v_exists = 0 THEN
+    APEX_UTIL.create_user(
+      p_user_name       => '${APEX_ADMIN}',
+      p_email_address   => '${APEX_ADMIN_EMAIL}',
+      p_web_password    => '${APEX_ADMIN_PWD}',
+      p_developer_privs => 'ADMIN');
+    COMMIT;
+  END IF;
 END;
 /
 EXIT;
 EOF
 
 # =====================
-# Descargar e instalar ORDS
+# Instalar ORDS
 # =====================
-echo "[INFO] Descargando ORDS..."
+echo "[INFO] Descargando ORDS ${ORDS_VERSION}..."
 
-ORDS_VERSION=${ORDS_VERSION:-25.1.0.100.1652}
-ORDS_DOWNLOAD_DIR="/opt/oracle/ords"
-ORDS_CLI_PATH="$ORDS_DOWNLOAD_DIR/bin/ords"
-ORDS_WAR_PATH="$ORDS_DOWNLOAD_DIR/ords.war"
-ORDS_CONFIG="/etc/ords/config"
+ORDS_DIR=/opt/oracle/ords
+ORDS_WAR=${ORDS_DIR}/ords.war
+ORDS_CLI=${ORDS_DIR}/bin/ords
 
-# Descargar ORDS completo si no existe
-if [ ! -f "$ORDS_CLI_PATH" ]; then
-  mkdir -p "$ORDS_DOWNLOAD_DIR" && cd "$ORDS_DOWNLOAD_DIR"
+mkdir -p ${ORDS_DIR}
+cd ${ORDS_DIR}
+
+if [ ! -f "${ORDS_WAR}" ]; then
   curl -L -o ords.zip "https://download.oracle.com/otn_software/java/ords/ords-${ORDS_VERSION}.zip"
   unzip -oq ords.zip
-  chmod +x bin/ords
   rm -f ords.zip
+  chmod +x bin/ords
 fi
 
-# Configuración de ORDS
-mkdir -p "$ORDS_CONFIG"
-chmod -R 777 "$ORDS_CONFIG"
-export ORDS_CONFIG="$ORDS_CONFIG"
+mkdir -p ${ORDS_CONFIG}
+chmod -R 777 ${ORDS_CONFIG}
+export ORDS_CONFIG
 
-# =====================
-# Ejecutar instalación de ORDS
-# =====================
-echo "[INFO] Instalando ORDS..."
-if [ -f "$ORDS_CLI_PATH" ]; then
-  "$ORDS_CLI_PATH" install \
-    --admin-user sys \
-    --db-hostname "${DB_HOST}" \
-    --db-port "${DB_PORT}" \
-    --db-servicename "${DB_SERVICE}" \
-    --gateway-mode proxied \
-    --gateway-user APEX_PUBLIC_USER \
-    --feature-sdw true \
-    --feature-db-api true \
-    --feature-rest-enabled-sql true \
-    --password-stdin <<EOF
-${ORACLE_PWD}
-${ORACLE_PWD}
-${ORACLE_PWD}
+echo "[INFO] Ejecutando instalación de ORDS..."
+${ORDS_CLI} install \
+  --admin-user ${SYSDBA_USER} \
+  --db-hostname ${DB_HOST} \
+  --db-port ${DB_PORT} \
+  --db-servicename ${DB_SERVICE} \
+  --gateway-mode proxied \
+  --gateway-user ${ORDS_USER} \
+  --feature-sdw true \
+  --feature-db-api true \
+  --feature-rest-enabled-sql true \
+  --password-stdin <<EOF
+${ORDS_PWD}
+${ORDS_PWD}
 EOF
-else
-  echo "[ERROR] No se encontró ORDS CLI en $ORDS_CLI_PATH"
-  exit 1
-fi
 
 # =====================
-# Desplegar en Tomcat
+# Desplegar ORDS en Tomcat
 # =====================
-if [ -f "$ORDS_WAR_PATH" ]; then
-  cp "$ORDS_WAR_PATH" /usr/local/tomcat/webapps/ords.war
-  chmod 644 /usr/local/tomcat/webapps/ords.war
-  echo "[INFO] ORDS.war copiado a Tomcat."
-else
-  echo "[ERROR] ords.war no encontrado."
-  exit 1
-fi
-
-# Asegurar permisos del WAR expandido (al reinicio)
-mkdir -p /usr/local/tomcat/webapps/ords
-chmod -R 755 /usr/local/tomcat/webapps/ords
+echo "[INFO] Desplegando ords.war en Tomcat..."
+cp ${ORDS_WAR} /usr/local/tomcat/webapps/ords.war
+chmod 644 /usr/local/tomcat/webapps/ords.war
 
 # =====================
-# Copiar archivos estáticos de APEX
+# Copiar imágenes estáticas de APEX
 # =====================
 if [ -d /opt/oracle/apex/images ]; then
-  echo "[INFO] Copiando imágenes estáticas de APEX..."
+  echo "[INFO] Copiando imágenes APEX..."
   mkdir -p /usr/local/tomcat/webapps/i
   cp -r /opt/oracle/apex/images/* /usr/local/tomcat/webapps/i/
 else
-  echo "[ERROR] No se encontró carpeta de imágenes de APEX."
+  echo "[ERROR] No se encontraron imágenes estáticas de APEX."
   exit 1
 fi
 
-# =========================
+# =====================
 # Iniciar Tomcat
-# =========================
-echo "[INFO] Instalación completa. Iniciando Tomcat en primer plano..."
+# =====================
+echo "[INFO] Inicio completo. Ejecutando Tomcat en primer plano..."
 exec catalina.sh run

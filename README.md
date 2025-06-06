@@ -24,12 +24,12 @@ Se recomiendan contribuciones a este repositorio.
 # Descargamos apex en su ultima version
 curl -o apex-latest.zip https://download.oracle.com/otn_software/apex/apex-latest.zip
 
-docker create -it --name oracle-container01 -p 8521:1521 -p 8500:5500 -p 8023:8080 -p 9043:8443 -p 9922:22 -e ORACLE_PWD=E container-registry.oracle.com/database/free:latest
+docker create -it --name oracle-apex -p 1521:1521 -p 5500:5500 -p 8022:8080 -p 8443:8443 -p 222:22 -e ORACLE_PWD=E container-registry.oracle.com/database/free:latest
 curl -o unattended_apex_install_23c.sh https://raw.githubusercontent.com/Pretius/pretius-23cfree-unattended-apex-installer/main/src/unattended_apex_install_23c.sh
 curl -o 00_start_apex_ords_installer.sh https://raw.githubusercontent.com/Pretius/pretius-23cfree-unattended-apex-installer/main/src/00_start_apex_ords_installer.sh
 docker cp unattended_apex_install_23c.sh oracle-container01:/home/oracle
 docker cp 00_start_apex_ords_installer.sh oracle-container01:/opt/oracle/scripts/startup
-docker start oracle-container01
+docker start oracle-apex
 
  docker create -it --name 23cfree -p 8521:1521 -p 8500:5500 -p 8023:8080 -p 9043:8443 -p 9922:22 -e ORACLE_PWD=E container-registry.oracle.com/database/free:latest
  curl -o unattended_apex_install_23c.sh https://raw.githubusercontent.com/Pretius/pretius-23cfree-unattended-apex-installer/main/src/unattended_apex_install_23c.sh
@@ -37,7 +37,6 @@ docker start oracle-container01
  docker cp unattended_apex_install_23c.sh 23cfree:/home/oracle
  docker cp 00_start_apex_ords_installer.sh 23cfree:/opt/oracle/scripts/startup
  docker start 23cfree
-
 
 
 #Instalacion manual
