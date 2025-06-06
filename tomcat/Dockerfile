@@ -34,7 +34,7 @@ RUN mkdir -p /etc/ords/config \
 # Copiar scripts
 COPY startup.sh /opt/startup.sh
 
-RUN chmod +x /opt/startup.sh /opt/oracle/scripts/unattended_apex_install_23c.sh
+RUN chmod +x /opt/startup.sh
 
 # Establecer directorio de trabajo
 WORKDIR /opt
