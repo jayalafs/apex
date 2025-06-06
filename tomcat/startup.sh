@@ -20,7 +20,7 @@ echo "[INFO] El PDB ${DB_SERVICE} está en modo READ WRITE. Continuando con la i
 # =====================
 if [ ! -f "/opt/oracle/apex/apexins.sql" ]; then
   echo "[INFO] Descargando APEX ${APEX_VERSION}..."
-  curl -L -o /opt/oracle/apex.zip https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip || {
+  curl -L -o /opt/oracle/apex.zip "https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip" || {
     echo "[ERROR] Falló la descarga de APEX"; exit 1;
   }
 
@@ -28,9 +28,16 @@ if [ ! -f "/opt/oracle/apex/apexins.sql" ]; then
   unzip -o /opt/oracle/apex.zip -d /opt/oracle/ || {
     echo "[ERROR] Falló al descomprimir APEX"; exit 1;
   }
+
+  # Mover carpeta apex a su ubicación final
+  if [ -d "/opt/oracle/apex/apex" ]; then
+    mv /opt/oracle/apex/apex/* /opt/oracle/apex/
+    rm -rf /opt/oracle/apex/apex
+  fi
+
   rm -f /opt/oracle/apex.zip
 else
-  echo "[INFO] APEX ya descargado previamente."
+  echo "[INFO] APEX ya está presente en /opt/oracle/apex"
 fi
 
 # =====================
