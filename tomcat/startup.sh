@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
+echo "===================================================="
 echo "[INFO] Esperando a que Oracle DB esté disponible..."
+echo "===================================================="
 
 # Espera hasta que Oracle DB esté abierta
 until echo "SELECT open_mode FROM v\$pdbs WHERE name = UPPER('${DB_SERVICE}');" \
@@ -14,12 +16,14 @@ done
 
 echo "[INFO] El PDB ${DB_SERVICE} está en modo READ WRITE. Continuando con la instalación..."
 
-
 # =====================
 # Instalar APEX
 # =====================
 if [ ! -f "/opt/oracle/apex/apexins.sql" ]; then
+  echo "===================================================="
   echo "[INFO] Descargando APEX ${APEX_VERSION}..."
+  echo "===================================================="
+
   curl -L -o /opt/oracle/apex.zip "https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip" || {
     echo "[ERROR] Falló la descarga de APEX"; exit 1;
   }
@@ -40,17 +44,19 @@ else
   echo "[INFO] APEX ya está presente en /opt/oracle/apex"
 fi
 
-# =====================
-# Desbloquear APEX_PUBLIC_USER
-# =====================
+echo "===================================================="
+echo "[INFO] Desbloqueando APEX_PUBLIC_USER..."
+echo "===================================================="
+
 sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" <<EOF
 ALTER USER APEX_PUBLIC_USER IDENTIFIED BY ${ORDS_PWD} ACCOUNT UNLOCK;
 EXIT;
 EOF
 
-# =====================
-# Crear usuario ADMIN de APEX
-# =====================
+echo "===================================================="
+echo "[INFO] Creando usuario ADMIN de APEX..."
+echo "===================================================="
+
 sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" <<EOF
 DECLARE
   v_exists NUMBER;
@@ -73,7 +79,9 @@ EOF
 # =====================
 # Instalar ORDS
 # =====================
+echo "===================================================="
 echo "[INFO] Descargando ORDS ${ORDS_VERSION}..."
+echo "===================================================="
 
 ORDS_DIR=/opt/oracle/ords
 ORDS_WAR=${ORDS_DIR}/ords.war
@@ -93,7 +101,10 @@ mkdir -p ${ORDS_CONFIG}
 chmod -R 777 ${ORDS_CONFIG}
 export ORDS_CONFIG
 
+echo "===================================================="
 echo "[INFO] Ejecutando instalación de ORDS..."
+echo "===================================================="
+
 ${ORDS_CLI} install \
   --admin-user ${SYSDBA_USER} \
   --db-hostname ${DB_HOST} \
@@ -110,17 +121,36 @@ ${ORDS_PWD}
 EOF
 
 # =====================
+# Mapear /apex al PDB
+# =====================
+echo "===================================================="
+echo "[INFO] Asignando mapping /apex -> ${DB_SERVICE} ..."
+echo "===================================================="
+
+/opt/oracle/ords/bin/ords --config ${ORDS_CONFIG} map-url \
+  --pdb ${DB_SERVICE} \
+  --url-path apex || {
+    echo "[ERROR] Falló al asignar el mapping de ORDS"; exit 1;
+}
+
+# =====================
 # Desplegar ORDS en Tomcat
 # =====================
+echo "===================================================="
 echo "[INFO] Desplegando ords.war en Tomcat..."
+echo "===================================================="
+
 cp ${ORDS_WAR} /usr/local/tomcat/webapps/ords.war
 chmod 644 /usr/local/tomcat/webapps/ords.war
 
 # =====================
 # Copiar imágenes estáticas de APEX
 # =====================
+echo "===================================================="
+echo "[INFO] Copiando imágenes APEX..."
+echo "===================================================="
+
 if [ -d /opt/oracle/apex/images ]; then
-  echo "[INFO] Copiando imágenes APEX..."
   mkdir -p /usr/local/tomcat/webapps/i
   cp -r /opt/oracle/apex/images/* /usr/local/tomcat/webapps/i/
 else
@@ -131,5 +161,8 @@ fi
 # =====================
 # Iniciar Tomcat
 # =====================
+echo "===================================================="
 echo "[INFO] Inicio completo. Ejecutando Tomcat en primer plano..."
+echo "===================================================="
+
 exec catalina.sh run
