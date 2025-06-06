@@ -4,13 +4,16 @@ set -e
 echo "===================================================="
 echo "[INFO] Esperando a que Oracle DB esté disponible..."
 echo "===================================================="
-
 until sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" <<EOF | grep -q "READ WRITE"
 SET HEADING OFF;
 SET FEEDBACK OFF;
 SELECT open_mode FROM v\$pdbs WHERE name = UPPER('${DB_SERVICE}');
 EXIT;
 EOF
+do
+  echo "[WARN] El PDB ${DB_SERVICE} aún no está en modo READ WRITE. Reintentando en 20s..."
+  sleep 20
+done
 
 # =====================
 # Instalar APEX si no existe
