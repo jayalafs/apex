@@ -18,16 +18,19 @@ echo "[INFO] El PDB ${DB_SERVICE} está en modo READ WRITE. Continuando con la i
 # =====================
 # Instalar APEX
 # =====================
-if [ -d /opt/oracle/apex ]; then
-  echo "[INFO] Iniciando instalación de APEX..."
-  cd /opt/oracle/apex
-  sqlplus -s "sys/${ORACLE_PWD}@//${DB_HOST}:${DB_PORT}/${DB_SERVICE} as sysdba" <<EOF
-@apexins.sql SYSAUX SYSAUX TEMP /i/
-EXIT;
-EOF
+if [ ! -f "/opt/oracle/apex/apexins.sql" ]; then
+  echo "[INFO] Descargando APEX ${APEX_VERSION}..."
+  curl -L -o /opt/oracle/apex.zip https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip || {
+    echo "[ERROR] Falló la descarga de APEX"; exit 1;
+  }
+
+  echo "[INFO] Descomprimiendo APEX..."
+  unzip -o /opt/oracle/apex.zip -d /opt/oracle/ || {
+    echo "[ERROR] Falló al descomprimir APEX"; exit 1;
+  }
+  rm -f /opt/oracle/apex.zip
 else
-  echo "[ERROR] No se encontró /opt/oracle/apex"
-  exit 1
+  echo "[INFO] APEX ya descargado previamente."
 fi
 
 # =====================
