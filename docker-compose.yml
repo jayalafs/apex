@@ -22,11 +22,11 @@ services:
 
   ords-app:
     build:
-      context: .
+      context: ./tomcat
       dockerfile: Dockerfile
     container_name: ords-app
     ports:
-      - "8080:8080"
+      - "8022:8080"
     depends_on:
       oracle-db:
         condition: service_healthy
