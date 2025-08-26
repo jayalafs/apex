@@ -91,59 +91,73 @@ else
 fi
 
 # ========= Configurar ADMIN de APEX =========
-log "Configurando usuario ADMIN (${APEX_ADMIN}) en workspace INTERNAL…"
-sql_sys <<SQL
-SET HEADING OFF FEEDBACK OFF ECHO OFF PAGES 0 LINES 200 TRIMSPOOL ON SERVEROUTPUT ON;
-WHENEVER SQLERROR EXIT SQL.SQLCODE
+log "Esperando a que APEX exponga vistas… (APEX_SCHEMA=${APEX_SCHEMA})"
+# Espera a que exista la vista APEX_WORKSPACE_USERS en el esquema de APEX
+until sql_sys <<SQL | grep -q "^1$"
+SET HEADING OFF FEEDBACK OFF
+SELECT 1
+  FROM dba_views
+ WHERE owner = UPPER('${APEX_SCHEMA}')
+   AND view_name = 'APEX_WORKSPACE_USERS';
+EXIT;
+SQL
+do
+  log "Aún no aparecen vistas de APEX en ${APEX_SCHEMA}. Reintento en 10s…"
+  sleep 10
+done
+log "Vistas APEX disponibles."
 
--- IMPORTANTÍSIMO: Cambiar al esquema de APEX
-ALTER SESSION SET CURRENT_SCHEMA = ${APEX_SCHEMA};
+log "Configurando usuario ADMIN (${APEX_ADMIN}) en workspace INTERNAL…"
+sql_sys <<'SQL'
+SET HEADING OFF FEEDBACK OFF ECHO OFF PAGES 0 LINES 200 TRIMSPOOL ON SERVEROUTPUT ON;
+
+ALTER SESSION SET CURRENT_SCHEMA = &&APEX_SCHEMA;
 
 DECLARE
   l_ws_id   NUMBER;
-  l_user_id NUMBER;
-  l_cnt     NUMBER;
+  l_exists  NUMBER := 0;
 BEGIN
-  -- Obtener el workspace INTERNAL
+  -- Entrar al workspace INTERNAL
   l_ws_id := apex_util.find_security_group_id(p_workspace => 'INTERNAL');
-
-  -- Operar dentro de INTERNAL
   apex_util.set_security_group_id(l_ws_id);
 
-  -- ¿Existe ya el usuario ADMIN en INTERNAL?
-  SELECT COUNT(*)
-    INTO l_cnt
-    FROM apex_workspace_users
-   WHERE user_name = UPPER('${APEX_ADMIN}')
-     AND security_group_id = l_ws_id;
+  -- ¿Existe ADMIN?
+  BEGIN
+    SELECT 1 INTO l_exists
+      FROM apex_workspace_users
+     WHERE user_name = UPPER('&&APEX_ADMIN')
+       AND security_group_id = l_ws_id;
+  EXCEPTION WHEN NO_DATA_FOUND THEN
+    l_exists := 0;
+  END;
 
-  IF l_cnt = 0 THEN
-    -- Crear ADMIN
+  IF l_exists = 0 THEN
     apex_util.create_user(
-      p_user_name                     => '${APEX_ADMIN}',
-      p_web_password                  => '${APEX_ADMIN_PWD}',
-      p_email_address                 => '${APEX_ADMIN_EMAIL}',
-      p_developer_privs               => 'ADMIN:CREATE:MONITOR:SQL',
-      p_change_password_on_first_use  => 'N'
+      p_user_name                    => '&&APEX_ADMIN',
+      p_web_password                 => '&&APEX_ADMIN_PWD',
+      p_email_address                => '&&APEX_ADMIN_EMAIL',
+      p_developer_privs              => 'ADMIN:CREATE:MONITOR:SQL',
+      p_change_password_on_first_use => 'N'
     );
   ELSE
-    -- Actualizar password/email de ADMIN existente
-    l_user_id := apex_util.get_user_id(p_user_name => '${APEX_ADMIN}');
+    -- Si ya existe, actualiza password/email
     apex_util.edit_user(
-      p_user_id       => l_user_id,
-      p_user_name     => '${APEX_ADMIN}',
-      p_web_password  => '${APEX_ADMIN_PWD}',
-      p_email_address => '${APEX_ADMIN_EMAIL}'
+      p_user_name     => '&&APEX_ADMIN',
+      p_web_password  => '&&APEX_ADMIN_PWD',
+      p_email_address => '&&APEX_ADMIN_EMAIL'
     );
   END IF;
 
-  -- Salir del contexto de INTERNAL
   apex_util.set_security_group_id(NULL);
+EXCEPTION
+  WHEN OTHERS THEN
+    -- No tumbar el contenedor; sólo loguear
+    dbms_output.put_line('[WARN] No se pudo crear/editar ADMIN: '||SQLERRM);
 END;
 /
 EXIT;
 SQL
-log "ADMIN configurado."
+log "ADMIN configurado (o ya existente)."
 
 # ========== desbloquear APEX_PUBLIC_USER (ORDS_USER) ==========
 log "Desbloqueando ${ORDS_USER}…"
