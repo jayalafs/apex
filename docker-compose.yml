@@ -3,9 +3,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        TOMCAT_VER: "10.1.26"
-        APEX_VERSION: "${APEX_VERSION}"
     container_name: oracle-onebox
     environment:
       TZ: ${TZ}
@@ -18,11 +15,11 @@ services:
       ORDS_GATEWAY_USER: ${ORDS_GATEWAY_USER}
       CLEAN_ORDS_CONFIG: ${CLEAN_ORDS_CONFIG}
     ports:
-      - "1521:1521"             # Oracle Listener
-      - "${HTTP_PORT}:8080"     # Tomcat/ORDS
+      - "1521:1521"
+      - "${HTTP_PORT}:8080"
     volumes:
-      - oracle-data:/opt/oracle/oradata     # datos de la DB
-      - ords-config:/opt/ords/config        # config ORDS persistente
+      - oracle-data:/opt/oracle/oradata
+      - ords-config:/opt/ords/config
     restart: unless-stopped
 
 volumes:

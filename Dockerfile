@@ -1,14 +1,16 @@
-# =========
-# Stage A: Tomcat + JRE + SQLcl + APEX (pre-horneados)
-# =========
+# syntax=docker/dockerfile:1
+
+# ========= ARGs globales (con defaults) =========
 ARG TOMCAT_BASE_TAG=10.1-jdk17-temurin
+ARG APEX_VERSION=24.1
+ARG ORDS_TAG=latest
+
+# ========= Stage A: Tomcat + JRE + SQLcl + APEX =========
 FROM tomcat:${TOMCAT_BASE_TAG} AS builder
 
 ENV JAVA_HOME=/opt/java/openjdk
 ENV CATALINA_HOME=/usr/local/tomcat
 ENV PATH=${JAVA_HOME}/bin:${CATALINA_HOME}/bin:${PATH}
-
-ARG APEX_VERSION=24.1
 
 # Herramientas para este stage
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -23,6 +25,7 @@ RUN mkdir -p /opt/sqlcl \
  && rm -f /tmp/sqlcl.zip
 
 # APEX (pre-descargado y expandido)
+ARG APEX_VERSION
 RUN mkdir -p /opt/apex \
  && curl -L --retry 5 --retry-all-errors \
        -o /tmp/apex.zip "https://download.oracle.com/otn_software/apex/apex_${APEX_VERSION}.zip" \
@@ -30,16 +33,11 @@ RUN mkdir -p /opt/apex \
  && if [ -d "/tmp/apex/apex" ]; then mv /tmp/apex/apex/* /opt/apex/; else mv /tmp/apex/* /opt/apex/; fi \
  && rm -rf /tmp/apex /tmp/apex.zip
 
-# =========
-# Stage B: ORDS oficial (solo para copiar el producto ya listo)
-# =========
-ARG ORDS_TAG=latest
+# ========= Stage B: ORDS oficial (para copiar el producto ya listo) =========
 FROM container-registry.oracle.com/database/ords:${ORDS_TAG} AS ordsimg
-# WorkingDir de esta imagen: /opt/oracle/ords (producto ORDS con bin/, etc.). :contentReference[oaicite:3]{index=3}
+# (esta imagen trae /opt/oracle/ords con bin/, ords.war, etc.)
 
-# =========
-# Stage C (final): Oracle DB Free + (Tomcat/JRE/SQLcl/APEX/ORDS pre-horneados)
-# =========
+# ========= Stage C (final): Oracle DB Free + (Tomcat/JRE/SQLcl/APEX/ORDS) =========
 FROM container-registry.oracle.com/database/free:latest
 
 USER root
@@ -59,10 +57,9 @@ COPY --from=builder /opt/sqlcl          ${SQLCL_HOME}
 COPY --from=builder /opt/apex           /opt/oracle/apex
 
 # Copiar desde ORDS oficial (producto ya listo)
-# /opt/oracle/ords -> contiene bin/ (CLI) y ords.war
 COPY --from=ordsimg  /opt/oracle/ords   ${ORDS_HOME}
 
-# Hook de arranque de la DB: nuestro script se ejecuta cuando la DB ya está arriba
+# Hook de arranque de la DB
 COPY scripts/30-ords-apex.sh /opt/oracle/scripts/startup/30-ords-apex.sh
 
 # Permisos
@@ -73,4 +70,4 @@ RUN chmod +x /opt/oracle/scripts/startup/30-ords-apex.sh \
 USER oracle
 
 EXPOSE 1521 8080
-# Mantiene ENTRYPOINT/CMD de la imagen oficial de la DB
+# Mantiene ENTRYPOINT/CMD de la imagen oficial de DB
