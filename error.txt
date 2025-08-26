@@ -1,0 +1,19 @@
+[root@localhost apex]# docker compose --env-file .env build --no-cache
+Compose can now delegate builds to bake for better performance.
+ To do so, set COMPOSE_BAKE=true.
+[+] Building 2.6s (6/11)                                                                                                                                                                                                      docker:default
+ => [oracle-onebox internal] load build definition from Dockerfile                                                                                                                                                                      0.2s
+ => => transferring dockerfile: 2.03kB                                                                                                                                                                                                  0.0s
+ => [oracle-onebox internal] load metadata for container-registry.oracle.com/database/free:latest                                                                                                                                       0.0s
+ => [oracle-onebox internal] load .dockerignore                                                                                                                                                                                         0.0s
+ => => transferring context: 2B                                                                                                                                                                                                         0.0s
+ => [oracle-onebox 1/7] FROM container-registry.oracle.com/database/free:latest                                                                                                                                                         0.5s
+ => [oracle-onebox internal] load build context                                                                                                                                                                                         0.1s
+ => => transferring context: 5.37kB                                                                                                                                                                                                     0.0s
+ => ERROR [oracle-onebox 2/7] RUN microdnf install -y java-17-openjdk-headless unzip curl tar gzip which shadow-utils &&     microdnf clean all                                                                                         0.5s
+------
+ > [oracle-onebox 2/7] RUN microdnf install -y java-17-openjdk-headless unzip curl tar gzip which shadow-utils &&     microdnf clean all:
+0.399 /bin/sh: microdnf: command not found
+------
+failed to solve: process "/bin/sh -c microdnf install -y java-17-openjdk-headless unzip curl tar gzip which shadow-utils &&     microdnf clean all" did not complete successfully: exit code: 127
+[root@localhost apex]#
