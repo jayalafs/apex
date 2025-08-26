@@ -4,43 +4,48 @@ services:
   oracle-db:
     image: container-registry.oracle.com/database/free:latest
     container_name: oracle-db
+    environment:
+      ORACLE_PWD: ${ORACLE_PWD}
+      ORACLE_CHARACTERSET: ${ORACLE_CHARACTERSET}
+      TZ: ${TZ}
     ports:
       - "1521:1521"
-    environment:
-      - ORACLE_PWD=${ORACLE_PWD}
-      - ORACLE_CHARACTERSET=AL32UTF8
-      - TZ=${TZ}
     volumes:
       - oracle-data:/opt/oracle/oradata
-    networks:
-      - apexnet
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD", "bash", "-c", "echo 'exit' | sqlplus sys/${ORACLE_PWD}@localhost:1521/FREEPDB1 as sysdba"]
-      interval: 30s
-      timeout: 10s
+      test: ["CMD", "bash", "-lc", "echo 'SELECT 1 FROM DUAL;' | /opt/oracle/product/*/dbhome*/bin/sqlplus -s sys/${ORACLE_PWD}@//localhost:1521/${DB_SERVICE} as sysdba || exit 1"]
+      interval: 60s
+      timeout: 15s
       retries: 10
+      start_period: 180s
+    networks:
+      - oracle-net
 
-  ords-app:
+  apex-ords-tomcat:
     build:
-      context: ./tomcat
+      context: .
       dockerfile: Dockerfile
-    container_name: ords-app
+    container_name: apex-ords-tomcat
+    env_file:
+      - .env
+    environment:
+      TZ: ${TZ}
     ports:
-      - "8022:8080"
+      - "${HTTP_PORT}:8080"
     depends_on:
       oracle-db:
         condition: service_healthy
-    env_file:
-      - .env
     volumes:
-      - ords-logs:/home/oracle/logs
+      - ords-config:${ORDS_CONFIG}
+    restart: unless-stopped
     networks:
-      - apexnet
+      - oracle-net
 
 volumes:
   oracle-data:
-  ords-logs:
+  ords-config:
 
 networks:
-  apexnet:
+  oracle-net:
     driver: bridge
