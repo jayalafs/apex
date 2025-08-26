@@ -1,19 +1,31 @@
 [root@localhost apex]# docker compose --env-file .env build --no-cache
 Compose can now delegate builds to bake for better performance.
  To do so, set COMPOSE_BAKE=true.
-[+] Building 2.6s (6/11)                                                                                                                                                                                                      docker:default
- => [oracle-onebox internal] load build definition from Dockerfile                                                                                                                                                                      0.2s
- => => transferring dockerfile: 2.03kB                                                                                                                                                                                                  0.0s
+[+] Building 18.1s (10/19)                                                                                                                                                                                                    docker:default
+ => [oracle-onebox internal] load build definition from Dockerfile                                                                                                                                                                      0.0s
+ => => transferring dockerfile: 2.82kB                                                                                                                                                                                                  0.0s
  => [oracle-onebox internal] load metadata for container-registry.oracle.com/database/free:latest                                                                                                                                       0.0s
+ => [oracle-onebox internal] load metadata for docker.io/library/tomcat:10.1-jdk17-temurin                                                                                                                                              1.3s
  => [oracle-onebox internal] load .dockerignore                                                                                                                                                                                         0.0s
  => => transferring context: 2B                                                                                                                                                                                                         0.0s
- => [oracle-onebox 1/7] FROM container-registry.oracle.com/database/free:latest                                                                                                                                                         0.5s
- => [oracle-onebox internal] load build context                                                                                                                                                                                         0.1s
- => => transferring context: 5.37kB                                                                                                                                                                                                     0.0s
- => ERROR [oracle-onebox 2/7] RUN microdnf install -y java-17-openjdk-headless unzip curl tar gzip which shadow-utils &&     microdnf clean all                                                                                         0.5s
+ => CACHED [oracle-onebox stage-1 1/9] FROM container-registry.oracle.com/database/free:latest                                                                                                                                          0.0s
+ => [oracle-onebox internal] load build context                                                                                                                                                                                         0.0s
+ => => transferring context: 72B                                                                                                                                                                                                        0.0s
+ => CACHED [oracle-onebox runtime-assets 1/5] FROM docker.io/library/tomcat:10.1-jdk17-temurin@sha256:4eaf833782dd940735cb972a928757626ac397f6dcd660d0f046ce3521535d08                                                                  0.0s
+ => [oracle-onebox runtime-assets 2/5] RUN apt-get update && apt-get install -y --no-install-recommends       curl unzip ca-certificates     && rm -rf /var/lib/apt/lists/*                                                             7.7s
+ => [oracle-onebox runtime-assets 3/5] RUN mkdir -p /opt/sqlcl  && curl -L --retry 5 --retry-all-errors -o /tmp/sqlcl.zip "https://download.oracle.com/otn_software/java/sqldeveloper/sqlcl-latest.zip"  && unzip -q /tmp/sqlcl.zip -d  5.5s
+ => ERROR [oracle-onebox runtime-assets 4/5] RUN curl -L --retry 5 --retry-all-errors -o /opt/ords-latest.war "https://download.oracle.com/java/ords/ords-latest.war"  && mkdir -p /opt/ords  && unzip -q -o /opt/ords-latest.war -d /  3.3s
 ------
- > [oracle-onebox 2/7] RUN microdnf install -y java-17-openjdk-headless unzip curl tar gzip which shadow-utils &&     microdnf clean all:
-0.399 /bin/sh: microdnf: command not found
+ > [oracle-onebox runtime-assets 4/5] RUN curl -L --retry 5 --retry-all-errors -o /opt/ords-latest.war "https://download.oracle.com/java/ords/ords-latest.war"  && mkdir -p /opt/ords  && unzip -q -o /opt/ords-latest.war -d /opt/ords:
+0.134   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+0.134                                  Dload  Upload   Total   Spent    Left  Speed
+100  7073  100  7073    0     0   2231      0  0:00:03  0:00:03 --:--:--  2231
+3.311 [/opt/ords-latest.war]
+3.311   End-of-central-directory signature not found.  Either this file is not
+3.311   a zipfile, or it constitutes one disk of a multi-part archive.  In the
+3.311   latter case the central directory and zipfile comment will be found on
+3.311   the last disk(s) of this archive.
+3.311 unzip:  cannot find zipfile directory in one of /opt/ords-latest.war or
+3.311         /opt/ords-latest.war.zip, and cannot find /opt/ords-latest.war.ZIP, period.
 ------
-failed to solve: process "/bin/sh -c microdnf install -y java-17-openjdk-headless unzip curl tar gzip which shadow-utils &&     microdnf clean all" did not complete successfully: exit code: 127
-[root@localhost apex]#
+failed to solve: process "/bin/sh -c curl -L --retry 5 --retry-all-errors -o /opt/ords-latest.war \"https://download.oracle.com/java/ords/ords-latest.war\"  && mkdir -p /opt/ords  && unzip -q -o /opt/ords-latest.war -d /opt/ords" did not complete successfully: exit code: 9
