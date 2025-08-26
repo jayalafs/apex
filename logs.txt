@@ -1,3 +1,246 @@
+
+[2025-08-26 19:29:53] APEX_VERSION=24.1 -> APEX_SCHEMA=APEX_240100
+
+[2025-08-26 19:29:53] Arranque APEX + ORDS + Tomcat (SQLcl)
+
+[2025-08-26 19:29:53] Esperando a DB oracle-db:1521/FREEPDB1 (READ WRITE)...
+
+[2025-08-26 19:30:04] DB lista.
+
+[2025-08-26 19:30:05] APEX (24.1) no detectado. Descargando e instalando...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  0  276M    0 2620k    0     0  3267k      0  0:01:26 --:--:--  0:01:26 3267k
+  3  276M    3 10.5M    0     0  6028k      0  0:00:47  0:00:01  0:00:46 6026k
+  6  276M    6 18.1M    0     0  6647k      0  0:00:42  0:00:02  0:00:40 6645k
+  9  276M    9 25.7M    0     0  6941k      0  0:00:40  0:00:03  0:00:37 6940k
+ 11  276M   11 32.8M    0     0  7032k      0  0:00:40  0:00:04  0:00:36 7032k
+ 14  276M   14 40.4M    0     0  7150k      0  0:00:39  0:00:05  0:00:34 7774k
+ 17  276M   17 48.9M    0     0  7345k      0  0:00:38  0:00:06  0:00:32 7813k
+ 20  276M   20 56.7M    0     0  7460k      0  0:00:38  0:00:07  0:00:31 7914k
+ 23  276M   23 64.5M    0     0  7518k      0  0:00:37  0:00:08  0:00:29 7958k
+ 26  276M   26 72.3M    0     0  7574k      0  0:00:37  0:00:09  0:00:28 8093k
+ 28  276M   28 80.0M    0     0  7582k      0  0:00:37  0:00:10  0:00:27 8080k
+ 31  276M   31 85.9M    0     0  7467k      0  0:00:37  0:00:11  0:00:26 7633k
+ 33  276M   33 93.2M    0     0  7470k      0  0:00:37  0:00:12  0:00:25 7485k
+ 35  276M   35 99.6M    0     0  7394k      0  0:00:38  0:00:13  0:00:25 7179k
+ 38  276M   38  105M    0     0  7294k      0  0:00:38  0:00:14  0:00:24 6751k
+ 40  276M   40  112M    0     0  7277k      0  0:00:38  0:00:15  0:00:23 6619k
+ 43  276M   43  119M    0     0  7315k      0  0:00:38  0:00:16  0:00:22 6958k
+ 46  276M   46  127M    0     0  7362k      0  0:00:38  0:00:17  0:00:21 7085k
+ 48  276M   48  135M    0     0  7375k      0  0:00:38  0:00:18  0:00:20 7322k
+ 51  276M   51  143M    0     0  7403k      0  0:00:38  0:00:19  0:00:19 7722k
+ 54  276M   54  151M    0     0  7439k      0  0:00:38  0:00:20  0:00:18 7951k
+ 56  276M   56  156M    0     0  7349k      0  0:00:38  0:00:21  0:00:17 7463k
+ 59  276M   59  164M    0     0  7394k      0  0:00:38  0:00:22  0:00:16 7509k
+ 62  276M   62  172M    0     0  7400k      0  0:00:38  0:00:23  0:00:15 7492k
+ 64  276M   64  179M    0     0  7421k      0  0:00:38  0:00:24  0:00:14 7493k
+ 67  276M   67  187M    0     0  7444k      0  0:00:38  0:00:25  0:00:13 7468k
+ 70  276M   70  194M    0     0  7450k      0  0:00:38  0:00:26  0:00:12 7891k
+ 73  276M   73  202M    0     0  7449k      0  0:00:38  0:00:27  0:00:11 7699k
+ 76  276M   76  210M    0     0  7488k      0  0:00:37  0:00:28  0:00:09 7905k
+ 78  276M   78  218M    0     0  7499k      0  0:00:37  0:00:29  0:00:08 7888k
+ 81  276M   81  225M    0     0  7510k      0  0:00:37  0:00:30  0:00:07 7847k
+ 84  276M   84  233M    0     0  7535k      0  0:00:37  0:00:31  0:00:06 7988k
+ 87  276M   87  241M    0     0  7548k      0  0:00:37  0:00:32  0:00:05 8101k
+ 89  276M   89  247M    0     0  7500k      0  0:00:37  0:00:33  0:00:04 7569k
+ 92  276M   92  255M    0     0  7525k      0  0:00:37  0:00:34  0:00:03 7676k
+ 95  276M   95  263M    0     0  7532k      0  0:00:37  0:00:35  0:00:02 7666k
+ 97  276M   97  270M    0     0  7507k      0  0:00:37  0:00:36  0:00:01 7333k
+100  276M  100  276M    0     0  7543k      0  0:00:37  0:00:37 --:--:-- 7505k
+
+[2025-08-26 19:30:49] Instalando APEX (SYSAUX,SYSAUX,TEMP,/i/)... esto puede tardar
+
+...set_appun.sql
+
+PL/SQL procedure successfully completed.
+
+
+:CDB    
+_______ 
+YES     
+
+
+:CDB_ROOT    
+____________ 
+NO           
+
+
+:META_LINK    
+_____________ 
+LOCAL         
+
+...set_ufrom_and_upgrade.sql
+
+PL/SQL procedure successfully completed.
+
+
+:SCRIPT_NAME         
+____________________ 
+apexins_nocdb.sql    
+
+
+Session altered.
+
+
+FOO3                              
+_________________________________ 
+install2025-08-26_19-30-51.log    
+
+. ORACLE
+.
+. Oracle APEX Installation.
+..........................................
+.
+...set_appun.sql
+... Checking prerequisites (MANUAL)
+.
+. SYSDBA Privilege
+.   pass - Connection with SYSDBA privilege.
+. Database rolling upgrade
+.   pass - No rolling upgrade.
+. DB components
+.   pass - CATPROC: version=23.0.0.0.0
+.   pass - XDB: version=23.0.0.0.0
+. XDB
+.   pass - is valid
+. DB parameters
+.   pass - workarea_size_policy is AUTO
+. PL/SQL Web Toolkit
+.   pass - version 20.0.0.0.1
+. Tablespaces
+.   pass - found SYSAUX
+.   pass - found SYSAUX
+.   pass - found TEMP
+. PHASES (1,2,3)...
+
+
+PL/SQL procedure successfully completed.
+
+.
+... Prerequisite checks passed.
+.
+...gen_adm_pwd.sql
+Phase 1 (Installation)
+#
+# Bootstrapping
+#
+...setting session environment
+...Creating users
+...create user APEX_240100
+...create user FLOWS_FILES
+...create user APEX_PUBLIC_USER
+...create user APEX_PUBLIC_ROUTER
+
+...core_grants.sql
+...grant APEX owner core privileges
+...done grant APEX owner core privileges
+...Creating APEX_240100 Install Objects
+...wwv_flows_release
+...wwv_install_api.sql
+No errors.
+...wwv_install_tabs.sql
+...wwv_install_seq
+...wwv_install$
+...wwv_install_action$
+...wwv_install_error$
+...wwv_flow_install_errors
+No errors.
+...wwv_install_api.plb
+No errors.
+...wwv_install_error$_bi
+No errors.
+# Proceeding with new installation.
+
+#
+# Creating APEX_GRANTS_FOR_NEW_USERS_ROLE
+#
+#
+# Creating SYS Objects
+#
+...Create validate procedure in SYS schema and start registration
+...validate_apex
+No errors.
+
+UFROM    
+________ 
+         
+No errors.
+...wwv_util_APEX_240100
+No errors.
+...wwv_util_APEX_240100
+No errors.
+... Key created.
+... created package wwv_flow_key
+... created package body wwv_flow_key
+
+...sys.wwv_flow_val
+No errors.
+...wwv_flow_val
+No errors.
+...CONNECT as the Oracle user who will own the Oracle APEX engine
+#
+# Creating APEX Tables
+#
+...create flows_files
+... create wwv_flow_file_objects
+...create flow objects
+GENERIC OBJECTS
+WORKSPACE
+SESSION STATE MANAGEMENT
+PROPERTY EDITOR
+APPLICATION > SHARED COMPONENTS > CREDENTIALS
+APPLICATION > SHARED COMPONENTS > REMOTE SERVERS
+APPLICATION
+...wwv_flow_application_groups
+...wwv_flows_reserved
+...wwv_flow_pages_reserved
+WORKSPACE USERS AND GROUPS
+...wwv_flow_fnd_user
+...wwv_flow_developers
+...wwv_flow_password_history
+...wwv_flow_fnd_user_groups
+...wwv_flow_fnd_group_users
+...wwv_flow_fnd_group_groups
+...wwv_flow_acl_group_users
+...wwv_flow_preferences$
+...wwv_flow_persistent_auth$
+APPLICATION > SHARED COMPONENTS > DATA PROFILES
+APPLICATION > SHARED COMPONENTS > WEB SOURCES
+APPLICATION > SHARED COMPONENTS > AUTHORIZATION
+...create wwv_flow_security_schemes
+APPLICATION > SHARED COMPONENTS > BUILD OPTIONS
+APPLICATION > SHARED COMPONENTS > THEMES
+themes
+APPLICATION > SHARED COMPONENTS > TEMPLATES
+...wwv_flow_list_templates
+calendar templates
+APPLICATION > SHARED COMPONENTS > SHORTCUTS
+APPLICATION > SHARED COMPONENTS > PLUGINS
+APPLICATION > SHARED COMPONENTS > REPORTS
+APPLICATION > SHARED COMPONENTS > GLOBALIZATION
+APPLICATION > SHARED COMPONENTS > EMAIL TEMPLATES
+APPLICATION > SHARED COMPONENTS > APPLICATION PROCESSES
+APPLICATION > SHARED COMPONENTS > APPLICATION ITEMS
+APPLICATION > SHARED COMPONENTS > APPLICATION COMPUTATIONS
+APPLICATION > SHARED COMPONENTS > AUTHENTICATIONS
+APPLICATION > SHARED COMPONENTS > WEB SERVICE REFERENCES
+APPLICATION > SHARED COMPONENTS > TABS
+APPLICATION > SHARED COMPONENTS > LISTS
+APPLICATION > SHARED COMPONENTS > BREADCRUMBS
+APPLICATION > SHARED COMPONENTS > TREES
+APPLICATION > SHARED COMPONENTS > NAVIGATION BAR ENTRIES
+APPLICATION > SHARED COMPONENTS > LISTS OF VALUES
+APPLICATION > SHARED COMPONENTS > DATA LOADING
+APPLICATION > SHARED COMPONENTS > USER INTERFACE > COMBINED FILES
+APPLICATION > SHARED COMPONENTS > APPLICATION SETTINGS
+APPLICATION > SHARED COMPONENTS > AUTOMATIONS
+APPLICATION > PAGE
+...create indexes on wwv_flow_steps table
+APPLICATION > PAGE > META TAG
+APPLICATION > PAGE > REGION (GENERIC)
 APPLICATION > PAGE > BUTTON
 APPLICATION > PAGE > ITEM
 APPLICATION > PAGE > DYNAMIC ACTIONS
@@ -2941,22 +3184,22 @@ Property Editor - Metadata
 # 
 # Actions in Phase 1:
 # 
-    ok 1 - BEGIN                                                        |   0.02
+    ok 1 - BEGIN                                                        |   0.00
 
     ok 2 - Creating APEX_GRANTS_FOR_NEW_USERS_ROLE                      |   0.0
-0
+2
     ok 3 - Creating SYS Objects                                         |   0.00
 
     ok 4 - Creating APEX Tables                                         |   0.1
 7
     ok 5 - Installing Package Specs (Runtime)                           |   0.28
 
-    ok 6 - Installing Package Bodies (Runtime)                          |   0.3
-0
-    ok 7 - Dev Grants                                                   |   0.00
+    ok 6 - Installing Package Bodies (Runtime)                          |   0.2
+8
+    ok 7 - Dev Grants                                                   |   0.02
 
     ok 8 - Creating Dev-Only Tables and Triggers                        |   0.0
-2
+0
     ok 9 - Installing Package Specs (Dev)                               |   0.13
 
     ok 10 - Installing Views (Dev)                                      |   0.0
@@ -2968,12 +3211,12 @@ Property Editor - Metadata
     ok 13 - Creating Instance Parameter Defaults                        |   0.00
 
     ok 14 - Loading PDF font data                                       |   0.5
-3
-    ok 15 - Installing Page Designer Metadata                           |   0.10
+5
+    ok 15 - Installing Page Designer Metadata                           |   0.08
 
     ok 16 - Inherit Privileges                                          |   0.0
 0
-ok 1 - 16 actions passed, 0 actions failed                              |   2.15
+ok 1 - 16 actions passed, 0 actions failed                              |   2.13
 
 
 
@@ -2982,7 +3225,7 @@ Elapsed:    2.18
 
 
 timing for: Phase 1 (Installation)
-Elapsed:    2.20
+Elapsed:    2.18
 
 Phase 2 (Upgrade)
 #
@@ -3244,7 +3487,7 @@ APPLICATION 4411 - Oracle APEX Builder, Wizard Messages and Native Plug-Ins
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 11.33 sec
+... elapsed: 11.36 sec
 
 ...done
 
@@ -3350,7 +3593,7 @@ APPLICATION 4470 - Oracle APEX Runtime Messages
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 2.41 sec
+... elapsed: 2.42 sec
 
 ...done
 
@@ -3432,7 +3675,7 @@ APPLICATION 4155 - Scheme Authentication Login
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 1.83 sec
+... elapsed: 1.82 sec
 
 ...done
 
@@ -3569,7 +3812,7 @@ APPLICATION 8940 - Universal Theme Development
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 2.51 sec
+... elapsed: 2.52 sec
 
 ...done
 
@@ -5954,7 +6197,7 @@ APPLICATION 4000 - Oracle APEX App Builder
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 58.45 sec
+... elapsed: 58.84 sec
 
 ...done
 
@@ -6300,7 +6543,7 @@ APPLICATION 4020 - Oracle APEX Create App Wizard
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 5.84 sec
+... elapsed: 6.28 sec
 
 ...done
 
@@ -6726,7 +6969,7 @@ APPLICATION 4350 - Oracle APEX Workspace Administration
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 7.91 sec
+... elapsed: 8.41 sec
 
 ...done
 
@@ -7311,7 +7554,7 @@ APPLICATION 4050 - Oracle APEX Internal Administration
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 12.67 sec
+... elapsed: 13.08 sec
 
 ...done
 
@@ -7432,7 +7675,7 @@ APPLICATION 4550 - Oracle APEX Workspace / INTERNAL Login
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 1.8 sec
+... elapsed: 2.25 sec
 
 ...done
 
@@ -7715,7 +7958,7 @@ APPLICATION 4600 - Oracle APEX Issues
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 4.83 sec
+... elapsed: 5.55 sec
 
 ...done
 
@@ -7950,7 +8193,7 @@ APPLICATION 4650 - Oracle APEX Feedback
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 3.2 sec
+... elapsed: 3.68 sec
 
 ...done
 
@@ -8113,7 +8356,7 @@ APPLICATION 4700 - Oracle APEX New Service Signup
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 2.37 sec
+... elapsed: 2.88 sec
 
 ...done
 
@@ -8271,7 +8514,7 @@ APPLICATION 4750 - Oracle APEX Productivity and Sample Applications
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 2.23 sec
+... elapsed: 2.76 sec
 
 ...done
 
@@ -8946,7 +9189,7 @@ APPLICATION 4500 - Oracle APEX SQL Workshop
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 13.54 sec
+... elapsed: 13.75 sec
 
 ...done
 
@@ -9129,7 +9372,7 @@ APPLICATION 4300 - Oracle APEX Data Workshop
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 2.53 sec
+... elapsed: 2.72 sec
 
 ...done
 
@@ -9377,7 +9620,7 @@ APPLICATION 4850 - Oracle APEX RESTful Services
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 3.6 sec
+... elapsed: 3.81 sec
 
 ...done
 #
@@ -9478,7 +9721,7 @@ APPLICATION 4100 - Oracle APEX Home
 --application/deployment/checks
 --application/deployment/buildoptions
 --application/end_environment
-... elapsed: 1.78 sec
+... elapsed: 1.91 sec
 
 ...done
 #
@@ -9514,7 +9757,7 @@ APPLICATION 4100 - Oracle APEX Home
 # 
 # Actions in Phase 2:
 # 
-    ok 1 - BEGIN                                                        |   0.00
+    ok 1 - BEGIN                                                        |   0.02
 
     ok 2 - Upgrade Metadata (1)                                         |   0.0
 0
@@ -9529,63 +9772,63 @@ APPLICATION 4100 - Oracle APEX Home
     ok 7 - Upgrading Wallet ACL                                         |   0.00
 
     ok 8 - Upgrading DIRECTORY object grants                            |   0.0
-2
+0
     ok 9 - Installing 4411                                              |   0.18
 
     ok 10 - Installing 4470                                             |   0.0
-3
+5
     ok 11 - Installing 4155                                             |   0.03
 
     ok 12 - Installing Internal Themes                                  |   0.0
-5
+3
     ok 13 - Installing 4000                                             |   0.98
 
-    ok 14 - Installing 4020                                             |   0.0
-8
+    ok 14 - Installing 4020                                             |   0.1
+2
     ok 15 - Installing 4350                                             |   0.13
 
     ok 16 - Installing 4050                                             |   0.2
 2
-    ok 17 - Installing 4550                                             |   0.03
+    ok 17 - Installing 4550                                             |   0.05
 
     ok 18 - Installing 4600                                             |   0.0
 8
-    ok 19 - Installing 4650                                             |   0.05
+    ok 19 - Installing 4650                                             |   0.07
 
     ok 20 - Installing 4700                                             |   0.0
-3
+5
     ok 21 - Installing 4750                                             |   0.05
 
     ok 22 - Installing 4500                                             |   0.2
-2
-    ok 23 - Installing 4300                                             |   0.05
+3
+    ok 23 - Installing 4300                                             |   0.03
 
     ok 24 - Installing 4850                                             |   0.0
 7
-    ok 25 - Installing 4100                                             |   0.02
+    ok 25 - Installing 4100                                             |   0.03
 
     ok 26 - Resetting Internal Authentication                           |   0.0
 0
-    ok 27 - Installing Dictionary View Metadata                         |   0.02
+    ok 27 - Installing Dictionary View Metadata                         |   0.00
 
     ok 28 - Installing Advisor Metadata                                 |   0.0
-0
+2
     ok 29 - Updating App Owner/Version                                  |   0.00
 
     ok 30 - Updating Plug-in settings of Applications                   |   0.0
 0
     ok 31 - Copying Instance settings                                   |   0.00
 
-ok 2 - 31 actions passed, 0 actions failed                              |   2.3
+ok 2 - 31 actions passed, 0 actions failed                              |   2.4
 7
 
 
 timing for: Enabling Phase 2
-Elapsed:    2.37
+Elapsed:    2.47
 
 
 timing for: Phase 2 (Upgrade)
-Elapsed:    2.37
+Elapsed:    2.47
 
 Phase 3 (Switch)
 #
@@ -9625,24 +9868,24 @@ No errors.
 #
 # Validating Installation
 #
-...(19:17:42) Starting validate_apex for APEX_240100
-...(19:17:42) Checking missing privileges for APEX_240100
-...(19:17:42) Checking missing privileges for APEX_GRANTS_FOR_NEW_USERS_ROLE
-...(19:17:43) Re-generating APEX_240100.wwv_flow_db_version
+...(19:35:38) Starting validate_apex for APEX_240100
+...(19:35:38) Checking missing privileges for APEX_240100
+...(19:35:39) Checking missing privileges for APEX_GRANTS_FOR_NEW_USERS_ROLE
+...(19:35:39) Re-generating APEX_240100.wwv_flow_db_version
 ... wwv_flow_db_version is up to date
-...(19:17:43) Checking for sys.wwv_flow_cu_constraints
-...(19:17:43) Checking invalid public synonyms
-...(19:17:44) Key object existence check
-...(19:17:44) Post-ORDS updates
-...(19:17:44) Calling wwv_flow_upgrade.post_ords_upgrade
-...(19:17:44) Setting DBMS Registry for APEX to valid
-...(19:17:44) Exiting validate_apex
+...(19:35:39) Checking for sys.wwv_flow_cu_constraints
+...(19:35:39) Checking invalid public synonyms
+...(19:35:40) Key object existence check
+...(19:35:40) Post-ORDS updates
+...(19:35:40) Calling wwv_flow_upgrade.post_ords_upgrade
+...(19:35:40) Setting DBMS Registry for APEX to valid
+...(19:35:40) Exiting validate_apex
 
 JOB_QUEUE_PROCESSES: 4
 
 
 timing for: Enabling Phase 3
-Elapsed:    0.17
+Elapsed:    0.15
 
 # 
 # Actions in Phase 3:
@@ -9671,23 +9914,23 @@ Elapsed:    0.17
 
     ok 12 - Creating Dev Jobs                                           |   0.0
 0
-    ok 13 - Installing FLOWS_FILES Objects                              |   0.02
+    ok 13 - Installing FLOWS_FILES Objects                              |   0.00
 
     ok 14 - Installing APEX$SESSION Context                             |   0.0
 0
     ok 15 - Recompiling APEX_240100                                     |   0.02
 
     ok 16 - Installing APEX REST Config                                 |   0.0
-0
+2
     ok 17 - Set Loaded/Upgraded in Registry                             |   0.00
 
     ok 18 - Setting Patch Status: APPLIED                               |   0.0
-2
+0
     ok 19 - Removing Unused SYS Objects and Public Privs                |   0.00
 
     ok 20 - Validating Installation                                     |   0.0
 3
-ok 3 - 20 actions passed, 0 actions failed                              |   0.17
+ok 3 - 20 actions passed, 0 actions failed                              |   0.15
 
 
 
@@ -9705,296 +9948,29 @@ http://host:port/ords
 
 
 timing for: Phase 3 (Switch)
-Elapsed:    0.17
+Elapsed:    0.15
 
 
 timing for: Complete Installation
-Elapsed:    4.73
+Elapsed:    4.80
 
 
-[2025-08-26 19:17:45] Configurando usuario ADMIN (ADMIN) en workspace INTERNAL…
+[2025-08-26 19:35:41] Esperando a que APEX exponga vistas… (APEX_SCHEMA=APEX_240100)
 
-    FROM apex_workspace_users
-         *
-ERROR at line 15:
-ORA-06550: line 15, column 10:
-PL/SQL: ORA-00942: table or view does not exist
-ORA-06550: line 13, column 3:
-PL/SQL: SQL Statement ignored
-ORA-06550: line 30, column 18:
-PLS-00306: wrong number or types of arguments in call to 'GET_USER_ID'
-ORA-06550: line 30, column 5:
-PL/SQL: Statement ignored
+[2025-08-26 19:35:42] Aún no aparecen vistas de APEX en APEX_240100. Reintento en 10s…
 
-https://docs.oracle.com/error-help/db/ora-06550/
+[2025-08-26 19:35:54] Aún no aparecen vistas de APEX en APEX_240100. Reintento en 10s…
 
+[2025-08-26 19:36:06] Aún no aparecen vistas de APEX en APEX_240100. Reintento en 10s…
 
-[2025-08-26 19:17:47] APEX_VERSION=24.1 -> APEX_SCHEMA=APEX_240100
+[2025-08-26 19:36:18] Aún no aparecen vistas de APEX en APEX_240100. Reintento en 10s…
 
-[2025-08-26 19:17:48] Arranque APEX + ORDS + Tomcat (SQLcl)
+[2025-08-26 19:36:29] Aún no aparecen vistas de APEX en APEX_240100. Reintento en 10s…
 
-[2025-08-26 19:17:48] Esperando a DB oracle-db:1521/FREEPDB1 (READ WRITE)...
+[2025-08-26 19:36:41] Aún no aparecen vistas de APEX en APEX_240100. Reintento en 10s…
 
-[2025-08-26 19:17:49] DB lista.
+[2025-08-26 19:36:53] Aún no aparecen vistas de APEX en APEX_240100. Reintento en 10s…
 
-[2025-08-26 19:17:51] APEX ya instalado (APEX_240100).
+[2025-08-26 19:37:05] Aún no aparecen vistas de APEX en APEX_240100. Reintento en 10s…
 
-[2025-08-26 19:17:51] Configurando usuario ADMIN (ADMIN) en workspace INTERNAL…
-
-    FROM apex_workspace_users
-         *
-ERROR at line 15:
-ORA-06550: line 15, column 10:
-PL/SQL: ORA-00942: table or view does not exist
-ORA-06550: line 13, column 3:
-PL/SQL: SQL Statement ignored
-ORA-06550: line 30, column 18:
-PLS-00306: wrong number or types of arguments in call to 'GET_USER_ID'
-ORA-06550: line 30, column 5:
-PL/SQL: Statement ignored
-
-https://docs.oracle.com/error-help/db/ora-06550/
-
-
-[2025-08-26 19:17:53] APEX_VERSION=24.1 -> APEX_SCHEMA=APEX_240100
-
-[2025-08-26 19:17:53] Arranque APEX + ORDS + Tomcat (SQLcl)
-
-[2025-08-26 19:17:53] Esperando a DB oracle-db:1521/FREEPDB1 (READ WRITE)...
-
-[2025-08-26 19:17:55] DB lista.
-
-[2025-08-26 19:17:57] APEX ya instalado (APEX_240100).
-
-[2025-08-26 19:17:57] Configurando usuario ADMIN (ADMIN) en workspace INTERNAL…
-
-    FROM apex_workspace_users
-         *
-ERROR at line 15:
-ORA-06550: line 15, column 10:
-PL/SQL: ORA-00942: table or view does not exist
-ORA-06550: line 13, column 3:
-PL/SQL: SQL Statement ignored
-ORA-06550: line 30, column 18:
-PLS-00306: wrong number or types of arguments in call to 'GET_USER_ID'
-ORA-06550: line 30, column 5:
-PL/SQL: Statement ignored
-
-https://docs.oracle.com/error-help/db/ora-06550/
-
-
-[2025-08-26 19:17:59] APEX_VERSION=24.1 -> APEX_SCHEMA=APEX_240100
-
-[2025-08-26 19:17:59] Arranque APEX + ORDS + Tomcat (SQLcl)
-
-[2025-08-26 19:17:59] Esperando a DB oracle-db:1521/FREEPDB1 (READ WRITE)...
-
-[2025-08-26 19:18:01] DB lista.
-
-[2025-08-26 19:18:03] APEX ya instalado (APEX_240100).
-
-[2025-08-26 19:18:03] Configurando usuario ADMIN (ADMIN) en workspace INTERNAL…
-
-    FROM apex_workspace_users
-         *
-ERROR at line 15:
-ORA-06550: line 15, column 10:
-PL/SQL: ORA-00942: table or view does not exist
-ORA-06550: line 13, column 3:
-PL/SQL: SQL Statement ignored
-ORA-06550: line 30, column 18:
-PLS-00306: wrong number or types of arguments in call to 'GET_USER_ID'
-ORA-06550: line 30, column 5:
-PL/SQL: Statement ignored
-
-https://docs.oracle.com/error-help/db/ora-06550/
-
-
-[2025-08-26 19:18:06] APEX_VERSION=24.1 -> APEX_SCHEMA=APEX_240100
-
-[2025-08-26 19:18:06] Arranque APEX + ORDS + Tomcat (SQLcl)
-
-[2025-08-26 19:18:06] Esperando a DB oracle-db:1521/FREEPDB1 (READ WRITE)...
-
-[2025-08-26 19:18:07] DB lista.
-
-[2025-08-26 19:18:09] APEX ya instalado (APEX_240100).
-
-[2025-08-26 19:18:09] Configurando usuario ADMIN (ADMIN) en workspace INTERNAL…
-
-    FROM apex_workspace_users
-         *
-ERROR at line 15:
-ORA-06550: line 15, column 10:
-PL/SQL: ORA-00942: table or view does not exist
-ORA-06550: line 13, column 3:
-PL/SQL: SQL Statement ignored
-ORA-06550: line 30, column 18:
-PLS-00306: wrong number or types of arguments in call to 'GET_USER_ID'
-ORA-06550: line 30, column 5:
-PL/SQL: Statement ignored
-
-https://docs.oracle.com/error-help/db/ora-06550/
-
-
-[2025-08-26 19:18:13] APEX_VERSION=24.1 -> APEX_SCHEMA=APEX_240100
-
-[2025-08-26 19:18:13] Arranque APEX + ORDS + Tomcat (SQLcl)
-
-[2025-08-26 19:18:13] Esperando a DB oracle-db:1521/FREEPDB1 (READ WRITE)...
-
-[2025-08-26 19:18:14] DB lista.
-
-[2025-08-26 19:18:16] APEX ya instalado (APEX_240100).
-
-[2025-08-26 19:18:16] Configurando usuario ADMIN (ADMIN) en workspace INTERNAL…
-
-    FROM apex_workspace_users
-         *
-ERROR at line 15:
-ORA-06550: line 15, column 10:
-PL/SQL: ORA-00942: table or view does not exist
-ORA-06550: line 13, column 3:
-PL/SQL: SQL Statement ignored
-ORA-06550: line 30, column 18:
-PLS-00306: wrong number or types of arguments in call to 'GET_USER_ID'
-ORA-06550: line 30, column 5:
-PL/SQL: Statement ignored
-
-https://docs.oracle.com/error-help/db/ora-06550/
-
-
-[2025-08-26 19:18:22] APEX_VERSION=24.1 -> APEX_SCHEMA=APEX_240100
-
-[2025-08-26 19:18:22] Arranque APEX + ORDS + Tomcat (SQLcl)
-
-[2025-08-26 19:18:22] Esperando a DB oracle-db:1521/FREEPDB1 (READ WRITE)...
-
-[2025-08-26 19:18:23] DB lista.
-
-[2025-08-26 19:18:25] APEX ya instalado (APEX_240100).
-
-[2025-08-26 19:18:25] Configurando usuario ADMIN (ADMIN) en workspace INTERNAL…
-
-    FROM apex_workspace_users
-         *
-ERROR at line 15:
-ORA-06550: line 15, column 10:
-PL/SQL: ORA-00942: table or view does not exist
-ORA-06550: line 13, column 3:
-PL/SQL: SQL Statement ignored
-ORA-06550: line 30, column 18:
-PLS-00306: wrong number or types of arguments in call to 'GET_USER_ID'
-ORA-06550: line 30, column 5:
-PL/SQL: Statement ignored
-
-https://docs.oracle.com/error-help/db/ora-06550/
-
-
-[2025-08-26 19:18:33] APEX_VERSION=24.1 -> APEX_SCHEMA=APEX_240100
-
-[2025-08-26 19:18:33] Arranque APEX + ORDS + Tomcat (SQLcl)
-
-[2025-08-26 19:18:33] Esperando a DB oracle-db:1521/FREEPDB1 (READ WRITE)...
-
-[2025-08-26 19:18:35] DB lista.
-
-[2025-08-26 19:18:37] APEX ya instalado (APEX_240100).
-
-[2025-08-26 19:18:37] Configurando usuario ADMIN (ADMIN) en workspace INTERNAL…
-
-    FROM apex_workspace_users
-         *
-ERROR at line 15:
-ORA-06550: line 15, column 10:
-PL/SQL: ORA-00942: table or view does not exist
-ORA-06550: line 13, column 3:
-PL/SQL: SQL Statement ignored
-ORA-06550: line 30, column 18:
-PLS-00306: wrong number or types of arguments in call to 'GET_USER_ID'
-ORA-06550: line 30, column 5:
-PL/SQL: Statement ignored
-
-https://docs.oracle.com/error-help/db/ora-06550/
-
-
-[2025-08-26 19:18:52] APEX_VERSION=24.1 -> APEX_SCHEMA=APEX_240100
-
-[2025-08-26 19:18:52] Arranque APEX + ORDS + Tomcat (SQLcl)
-
-[2025-08-26 19:18:52] Esperando a DB oracle-db:1521/FREEPDB1 (READ WRITE)...
-
-[2025-08-26 19:18:53] DB lista.
-
-[2025-08-26 19:18:55] APEX ya instalado (APEX_240100).
-
-[2025-08-26 19:18:55] Configurando usuario ADMIN (ADMIN) en workspace INTERNAL…
-
-    FROM apex_workspace_users
-         *
-ERROR at line 15:
-ORA-06550: line 15, column 10:
-PL/SQL: ORA-00942: table or view does not exist
-ORA-06550: line 13, column 3:
-PL/SQL: SQL Statement ignored
-ORA-06550: line 30, column 18:
-PLS-00306: wrong number or types of arguments in call to 'GET_USER_ID'
-ORA-06550: line 30, column 5:
-PL/SQL: Statement ignored
-
-https://docs.oracle.com/error-help/db/ora-06550/
-
-
-[2025-08-26 19:19:23] APEX_VERSION=24.1 -> APEX_SCHEMA=APEX_240100
-
-[2025-08-26 19:19:23] Arranque APEX + ORDS + Tomcat (SQLcl)
-
-[2025-08-26 19:19:23] Esperando a DB oracle-db:1521/FREEPDB1 (READ WRITE)...
-
-[2025-08-26 19:19:25] DB lista.
-
-[2025-08-26 19:19:26] APEX ya instalado (APEX_240100).
-
-[2025-08-26 19:19:26] Configurando usuario ADMIN (ADMIN) en workspace INTERNAL…
-
-    FROM apex_workspace_users
-         *
-ERROR at line 15:
-ORA-06550: line 15, column 10:
-PL/SQL: ORA-00942: table or view does not exist
-ORA-06550: line 13, column 3:
-PL/SQL: SQL Statement ignored
-ORA-06550: line 30, column 18:
-PLS-00306: wrong number or types of arguments in call to 'GET_USER_ID'
-ORA-06550: line 30, column 5:
-PL/SQL: Statement ignored
-
-https://docs.oracle.com/error-help/db/ora-06550/
-
-
-[2025-08-26 19:20:20] APEX_VERSION=24.1 -> APEX_SCHEMA=APEX_240100
-
-[2025-08-26 19:20:20] Arranque APEX + ORDS + Tomcat (SQLcl)
-
-[2025-08-26 19:20:20] Esperando a DB oracle-db:1521/FREEPDB1 (READ WRITE)...
-
-[2025-08-26 19:20:21] DB lista.
-
-[2025-08-26 19:20:23] APEX ya instalado (APEX_240100).
-
-[2025-08-26 19:20:23] Configurando usuario ADMIN (ADMIN) en workspace INTERNAL…
-
-    FROM apex_workspace_users
-         *
-ERROR at line 15:
-ORA-06550: line 15, column 10:
-PL/SQL: ORA-00942: table or view does not exist
-ORA-06550: line 13, column 3:
-PL/SQL: SQL Statement ignored
-ORA-06550: line 30, column 18:
-PLS-00306: wrong number or types of arguments in call to 'GET_USER_ID'
-ORA-06550: line 30, column 5:
-PL/SQL: Statement ignored
-
-https://docs.oracle.com/error-help/db/ora-06550/
-
+[2025-08-26 19:37:16] Aún no aparecen vistas de APEX en APEX_240100. Reintento en 10s…
