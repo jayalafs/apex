@@ -1,13 +1,78 @@
-[root@localhost apex]# docker compose --env-file .env up --build -d
-WARN[0000] /root/apex/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
-Compose can now delegate builds to bake for better performance.
- To do so, set COMPOSE_BAKE=true.
-[+] Building 3.8s (3/3) FINISHED                                                                                                                                                                                              docker:default
- => [apex-ords-tomcat internal] load build definition from Dockerfile                                                                                                                                                                   0.1s
- => => transferring dockerfile: 1.45kB                                                                                                                                                                                                  0.0s
- => CANCELED [apex-ords-tomcat internal] load metadata for docker.io/library/tomcat:10.1-jdk17-temurin                                                                                                                                  1.3s
- => ERROR [apex-ords-tomcat internal] load metadata for docker.io/gvenzl/oracle-sqlplus:21-slim                                                                                                                                         1.2s
-------
- > [apex-ords-tomcat internal] load metadata for docker.io/gvenzl/oracle-sqlplus:21-slim:
-------
-failed to solve: gvenzl/oracle-sqlplus:21-slim: failed to resolve source metadata for docker.io/gvenzl/oracle-sqlplus:21-slim: pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
+Starting Oracle Net Listener.
+Oracle Net Listener started.
+Starting Oracle Database instance FREE.
+Oracle Database instance FREE started.
+
+The Oracle base remains unchanged with value /opt/oracle
+
+SQL*Plus: Release 23.0.0.0.0 - Production on Tue Aug 26 17:15:39 2025
+Version 23.8.0.25.04
+
+Copyright (c) 1982, 2025, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 23ai Free Release 23.0.0.0.0 - Develop, Learn, and Run for Free
+Version 23.8.0.25.04
+
+SQL> 
+User altered.
+
+SQL> 
+User altered.
+
+SQL> 
+Session altered.
+
+SQL> 
+User altered.
+
+SQL> Disconnected from Oracle Database 23ai Free Release 23.0.0.0.0 - Develop, Learn, and Run for Free
+Version 23.8.0.25.04
+The Oracle base remains unchanged with value /opt/oracle
+#########################
+DATABASE IS READY TO USE!
+#########################
+The following output is now a tail of the alert.log:
+Dumping current patch information
+===========================================================
+No patches have been applied
+===========================================================
+2025-08-26T17:15:37.874730-03:00
+FREEPDB1(3):Opening pdb with Resource Manager plan: DEFAULT_PLAN
+Completed: Pluggable database FREEPDB1 opened read write 
+Completed: ALTER DATABASE OPEN
+2025-08-26T17:15:40.595845-03:00
+FREEPDB1(3):TABLE AUDSYS.AUD$UNIFIED: ADDED INTERVAL PARTITION SYS_P889 (4075) VALUES LESS THAN (TIMESTAMP' 2025-08-27 00:00:00')
+2025-08-26T17:15:44.899329-03:00
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 46080K, new size 51200K
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 51200K, new size 56320K
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 56320K, new size 61440K
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 61440K, new size 66560K
+2025-08-26T17:15:46.019713-03:00
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 66560K, new size 71680K
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 71680K, new size 76800K
+2025-08-26T17:15:46.203279-03:00
+Thread 1 advanced to log sequence 45 (LGWR switch),  current SCN: 5534453
+  Current log# 3 seq# 45 mem# 0: /opt/oracle/oradata/FREE/redo03.log
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 76800K, new size 81920K
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 81920K, new size 87040K
+2025-08-26T17:15:46.821995-03:00
+ARC0 (PID:190): Archived Log entry 44 added for B-1199280134.T-1.S-44 LOS:0x00000000005419c8 NXS:0x00000000005472f5 NAB:396729 ID 0x57b2c646 LAD:1 [krse.c:4872]
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 87040K, new size 92160K
+2025-08-26T17:15:47.475312-03:00
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 92160K, new size 97280K
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 97280K, new size 102400K
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 102400K, new size 107520K
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 107520K, new size 112640K
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 112640K, new size 117760K
+Resize operation completed for file# 11, fname /opt/oracle/oradata/FREE/undotbs01.dbf, old size 117760K, new size 122880K
+2025-08-26T17:15:56.524240-03:00
+Thread 1 advanced to log sequence 46 (LGWR switch),  current SCN: 5535843
+  Current log# 1 seq# 46 mem# 0: /opt/oracle/oradata/FREE/redo01.log
+2025-08-26T17:15:56.781831-03:00
+ARC2 (PID:194): Archived Log entry 45 added for B-1199280134.T-1.S-45 LOS:0x00000000005472f5 NXS:0x0000000000547863 NAB:400567 ID 0x57b2c646 LAD:1 [krse.c:4872]
+2025-08-26T17:16:25.975044-03:00
+TABLE SYS.WRP$_REPORTS: ADDED AUTOLIST FRAGMENT SYS_P906 (3) VALUES (( 1471336774, TO_DATE(' 2025-08-25 00:00:00', 'syyyy-mm-dd hh24:mi:ss', 'nls_calendar=gregorian') ))
+TABLE SYS.WRP$_REPORTS_DETAILS: ADDED AUTOLIST FRAGMENT SYS_P907 (3) VALUES (( 1471336774, TO_DATE(' 2025-08-25 00:00:00', 'syyyy-mm-dd hh24:mi:ss', 'nls_calendar=gregorian') ))
+TABLE SYS.WRP$_REPORTS_TIME_BANDS: ADDED AUTOLIST FRAGMENT SYS_P910 (3) VALUES (( 1471336774, TO_DATE(' 2025-08-25 00:00:00', 'syyyy-mm-dd hh24:mi:ss', 'nls_calendar=gregorian') ))

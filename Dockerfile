@@ -19,13 +19,19 @@ RUN mkdir -p ${SQLCL_HOME} \
 
 ENV PATH=${SQLCL_HOME}/sqlcl/bin:${PATH}
 
-# Copiamos el script de arranque
+# Copiamos el script y lo normalizamos (quita CRLF/BOM) y damos permisos
 COPY startup.sh /usr/local/bin/startup.sh
-RUN chmod +x /usr/local/bin/startup.sh
+RUN set -eux; \
+    # quitar CRLF
+    sed -i 's/\r$//' /usr/local/bin/startup.sh; \
+    # quitar BOM si lo hubiera
+    sed -i '1s/^\xEF\xBB\xBF//' /usr/local/bin/startup.sh; \
+    chmod +x /usr/local/bin/startup.sh
 
-# Salud básica
+# Salud básica de Tomcat
 HEALTHCHECK --interval=30s --timeout=10s --retries=20 \
   CMD curl -fsS http://localhost:8080/ || exit 1
 
 EXPOSE 8080
-ENTRYPOINT ["/usr/local/bin/startup.sh"]
+# Invocar con bash explícitamente evita problemas de shebang/CRLF
+ENTRYPOINT ["/bin/bash","/usr/local/bin/startup.sh"]
