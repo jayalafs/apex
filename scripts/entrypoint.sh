@@ -90,50 +90,54 @@ else
   log "APEX ya instalado (${APEX_SCHEMA})."
 fi
 
-# ========== configurar usuario ADMIN de APEX ==========
+# ========= Configurar ADMIN de APEX =========
 log "Configurando usuario ADMIN (${APEX_ADMIN}) en workspace INTERNAL…"
 sql_sys <<SQL
 SET HEADING OFF FEEDBACK OFF ECHO OFF PAGES 0 LINES 200 TRIMSPOOL ON SERVEROUTPUT ON;
 WHENEVER SQLERROR EXIT SQL.SQLCODE
 
+-- IMPORTANTÍSIMO: Cambiar al esquema de APEX
 ALTER SESSION SET CURRENT_SCHEMA = ${APEX_SCHEMA};
 
 DECLARE
-  l_admin_exists NUMBER := 0;
-  l_ws_id        NUMBER;
+  l_ws_id   NUMBER;
+  l_user_id NUMBER;
+  l_cnt     NUMBER;
 BEGIN
-  SELECT COUNT(*) INTO l_admin_exists
-    FROM apex_workspace_admins
-   WHERE user_name = UPPER('${APEX_ADMIN}');
+  -- Obtener el workspace INTERNAL
+  l_ws_id := apex_util.find_security_group_id(p_workspace => 'INTERNAL');
 
-  SELECT workspace_id INTO l_ws_id
-    FROM apex_workspaces
-   WHERE workspace = 'INTERNAL';
-
+  -- Operar dentro de INTERNAL
   apex_util.set_security_group_id(l_ws_id);
 
-  IF l_admin_exists = 0 THEN
+  -- ¿Existe ya el usuario ADMIN en INTERNAL?
+  SELECT COUNT(*)
+    INTO l_cnt
+    FROM apex_workspace_users
+   WHERE user_name = UPPER('${APEX_ADMIN}')
+     AND security_group_id = l_ws_id;
+
+  IF l_cnt = 0 THEN
+    -- Crear ADMIN
     apex_util.create_user(
-      p_user_name                       => '${APEX_ADMIN}',
-      p_web_password                    => '${APEX_ADMIN_PWD}',
-      p_email_address                   => '${APEX_ADMIN_EMAIL}',
-      p_developer_privs                 => 'ADMIN:CREATE:MONITOR:SQL',
-      p_change_password_on_first_use    => 'N'
+      p_user_name                     => '${APEX_ADMIN}',
+      p_web_password                  => '${APEX_ADMIN_PWD}',
+      p_email_address                 => '${APEX_ADMIN_EMAIL}',
+      p_developer_privs               => 'ADMIN:CREATE:MONITOR:SQL',
+      p_change_password_on_first_use  => 'N'
     );
   ELSE
-    apex_util.change_password(
-      p_user_name    => '${APEX_ADMIN}',
-      p_new_password => '${APEX_ADMIN_PWD}'
+    -- Actualizar password/email de ADMIN existente
+    l_user_id := apex_util.get_user_id(p_user_name => '${APEX_ADMIN}');
+    apex_util.edit_user(
+      p_user_id       => l_user_id,
+      p_user_name     => '${APEX_ADMIN}',
+      p_web_password  => '${APEX_ADMIN_PWD}',
+      p_email_address => '${APEX_ADMIN_EMAIL}'
     );
-    IF '${APEX_ADMIN_EMAIL}' IS NOT NULL THEN
-      APEX_UTIL.SET_USER_ATTRIBUTE(
-        p_user_name       => '${APEX_ADMIN}',
-        p_attribute_name  => 'EMAIL',
-        p_attribute_value => '${APEX_ADMIN_EMAIL}'
-      );
-    END IF;
   END IF;
 
+  -- Salir del contexto de INTERNAL
   apex_util.set_security_group_id(NULL);
 END;
 /
