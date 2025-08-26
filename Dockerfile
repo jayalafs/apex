@@ -19,19 +19,16 @@ RUN mkdir -p ${SQLCL_HOME} \
 
 ENV PATH=${SQLCL_HOME}/sqlcl/bin:${PATH}
 
-# Copiamos el script y lo normalizamos (quita CRLF/BOM) y damos permisos
-COPY startup.sh /usr/local/bin/startup.sh
+# Copia entrypoint y normaliza EOL/BOM
+COPY scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN set -eux; \
-    # quitar CRLF
-    sed -i 's/\r$//' /usr/local/bin/startup.sh; \
-    # quitar BOM si lo hubiera
-    sed -i '1s/^\xEF\xBB\xBF//' /usr/local/bin/startup.sh; \
-    chmod +x /usr/local/bin/startup.sh
+    sed -i 's/\r$//' /usr/local/bin/entrypoint.sh; \
+    sed -i '1s/^\xEF\xBB\xBF//' /usr/local/bin/entrypoint.sh; \
+    chmod +x /usr/local/bin/entrypoint.sh
 
-# Salud básica de Tomcat
+# Salud básica
 HEALTHCHECK --interval=30s --timeout=10s --retries=20 \
   CMD curl -fsS http://localhost:8080/ || exit 1
 
 EXPOSE 8080
-# Invocar con bash explícitamente evita problemas de shebang/CRLF
-ENTRYPOINT ["/bin/bash","/usr/local/bin/startup.sh"]
+ENTRYPOINT ["/bin/bash","/usr/local/bin/entrypoint.sh"]
