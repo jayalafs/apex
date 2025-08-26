@@ -1,0 +1,13 @@
+[root@localhost apex]# docker compose --env-file .env up --build -d
+WARN[0000] /root/apex/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+Compose can now delegate builds to bake for better performance.
+ To do so, set COMPOSE_BAKE=true.
+[+] Building 3.8s (3/3) FINISHED                                                                                                                                                                                              docker:default
+ => [apex-ords-tomcat internal] load build definition from Dockerfile                                                                                                                                                                   0.1s
+ => => transferring dockerfile: 1.45kB                                                                                                                                                                                                  0.0s
+ => CANCELED [apex-ords-tomcat internal] load metadata for docker.io/library/tomcat:10.1-jdk17-temurin                                                                                                                                  1.3s
+ => ERROR [apex-ords-tomcat internal] load metadata for docker.io/gvenzl/oracle-sqlplus:21-slim                                                                                                                                         1.2s
+------
+ > [apex-ords-tomcat internal] load metadata for docker.io/gvenzl/oracle-sqlplus:21-slim:
+------
+failed to solve: gvenzl/oracle-sqlplus:21-slim: failed to resolve source metadata for docker.io/gvenzl/oracle-sqlplus:21-slim: pull access denied, repository does not exist or may require authorization: server message: insufficient_scope: authorization failed
