@@ -1,54 +1,27 @@
 services:
-  oracle-db:
-    image: container-registry.oracle.com/database/free:latest
-    container_name: oracle-db
-    environment:
-      ORACLE_PWD: ${ORACLE_PWD}
-      ORACLE_CHARACTERSET: ${ORACLE_CHARACTERSET}
-      TZ: ${TZ}
-    ports:
-      - "1521:1521"
-    volumes:
-      - oracle-data:/opt/oracle/oradata
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "bash", "-lc", "echo 'SELECT 1 FROM DUAL;' | /opt/oracle/product/*/dbhome*/bin/sqlplus -s sys/${ORACLE_PWD}@//localhost:1521/${DB_SERVICE} as sysdba || exit 1"]
-      interval: 60s
-      timeout: 15s
-      retries: 10
-      start_period: 180s
-    networks:
-      - oracle-net
-
-  apex-ords-tomcat:
+  oracle-onebox:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: apex-ords-tomcat
-    env_file:
-      - .env
+    container_name: oracle-onebox
     environment:
       TZ: ${TZ}
-      # TIP (opcional): para no re-descargar binarios en cada prueba,
-      # monta ./artifacts y coloca apex_${APEX_VERSION}.zip y ords-latest.war dentro.
-      # Comenta/borra la línea si no vas a usarlo.
-      # ARTIFACTS_DIR: /artifacts
+      ORACLE_PWD: ${ORACLE_PWD}
+      DB_SERVICE: ${DB_SERVICE}
+      APEX_VERSION: ${APEX_VERSION}
+      APEX_ADMIN_PWD: ${APEX_ADMIN_PWD}
+      APEX_ADMIN_EMAIL: ${APEX_ADMIN_EMAIL}
+      ORDS_PWD: ${ORDS_PWD}
+      ORDS_GATEWAY_USER: ${ORDS_GATEWAY_USER}
+      CLEAN_ORDS_CONFIG: ${CLEAN_ORDS_CONFIG}
     ports:
-      - "${HTTP_PORT:-8080}:8080"
-    depends_on:
-      oracle-db:
-        condition: service_healthy
+      - "1521:1521"           # Oracle Listener
+      - "${HTTP_PORT}:8080"   # Tomcat/ORDS
     volumes:
-      - ords-config:${ORDS_CONFIG}
-      # - ./artifacts:/artifacts:ro     # <-- opcional (acelera instalaciones limpias)
+      - oracle-data:/opt/oracle/oradata        # datos de la DB
+      - ords-config:/opt/ords/config           # config de ORDS persistente
     restart: unless-stopped
-    networks:
-      - oracle-net
 
 volumes:
   oracle-data:
   ords-config:
-
-networks:
-  oracle-net:
-    driver: bridge
