@@ -1,25 +1,22 @@
 services:
   oracle-onebox:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: container-registry.oracle.com/database/free:latest
     container_name: oracle-onebox
     environment:
       TZ: ${TZ}
       ORACLE_PWD: ${ORACLE_PWD}
-      DB_SERVICE: ${DB_SERVICE}
-      APEX_VERSION: ${APEX_VERSION}
+      DB_SERVICE: ${DB_SERVICE}      # FREEPDB1 por defecto
       APEX_ADMIN_PWD: ${APEX_ADMIN_PWD}
       APEX_ADMIN_EMAIL: ${APEX_ADMIN_EMAIL}
       ORDS_PWD: ${ORDS_PWD}
-      ORDS_GATEWAY_USER: ${ORDS_GATEWAY_USER}
-      CLEAN_ORDS_CONFIG: ${CLEAN_ORDS_CONFIG}
+      HTTP_PORT: ${HTTP_PORT}
     ports:
-      - "1521:1521"
-      - "${HTTP_PORT}:8080"
+      - "1521:1521"                  # Oracle listener
+      - "${HTTP_PORT:-8080}:8080"    # Tomcat/ORDS
     volumes:
-      - oracle-data:/opt/oracle/oradata
-      - ords-config:/opt/ords/config
+      - ./scripts:/opt/oracle/scripts/startup     # hook oficial: ejecuta nuestros scripts al iniciar DB
+      - oracle-data:/opt/oracle/oradata           # datos de la DB
+      - ords-config:/etc/ords/config              # config persistente de ORDS
     restart: unless-stopped
 
 volumes:
